@@ -1,7 +1,28 @@
 {% extends "base.html" %}
+<<<<<<< HEAD
 {% block content %}
 	<h1> Hello bicth {{ user.username }}</h1>
 	{% for post in posts %}
 	<div><p>{{ post.author.username }} writes : <b>{{ post.body }}</b></p></div>
 	{% endfor %}
 {% endblock %}
+=======
+
+{% block content %}
+   
+   
+  <ul class="nav justify-content-center fixed-bottom itws-bottom-margin">
+
+         <li class="nav-item">
+             <button class=" btn-default nav-link btn-margin-right"><i class="fa fa-stethoscope"></i>  Find a Doctor</button> 
+          </li>
+          <li class="nav-item">   
+           <button class=" btn-default nav-link btn-margin-left"><i class="fa fa-calendar"></i>  Book an Appointment </button> 
+        </li>
+       </div>
+      
+  	   
+  </ul>
+
+{% endblock %}
+>>>>>>> 5c9991b4cdf4e6f9ee99c9055d6fba2cf9765824
