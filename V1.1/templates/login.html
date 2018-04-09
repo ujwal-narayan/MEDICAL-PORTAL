@@ -5,13 +5,16 @@
 {% else %}
 <br>
 <h2>Login</h2>
+
 <form action="/login" method="POST">
   <input type="username" name="username" placeholder="Username">
   <input type="password" name="password" placeholder="Password">
   <input type="submit" value="Log in">
 </form>
-<p>New User ? Click here to register </p>
-<a href="{{ url_for('register') }}">Register</a>
+{% if error %}
+<p><strong>{{ error }}</strong></p>
+{% endif %}
+<p><a href="{{ url_for('register') }}">Click here to register </a> </p>
 
 {% endif %}
 {% endblock %}

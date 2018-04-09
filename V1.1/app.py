@@ -53,11 +53,23 @@ def login():
 					session['logged_in'] = True
 					return redirect(url_for('home'))
 				else:
-					return "Incorrect password"
+
+					error="Incorrect password.Please Try Again."
+					#return redirect(url_for('login'))
+					return render_template('login.html',error=error)
+
+
 			else:
-				return 'Dont Login'
+				error='User was not found. Please register before trying again'
+				#return redirect(url_for('login'))
+				return render_template('login.html',error=error)
+
 		except :
-			return "User not found "
+			error="An Error was encountered please try again" 
+			#return redirect(url_for('login'))
+			return render_template('login.html',error=error)
+
+			
 
 @app.route('/register/', methods=['GET', 'POST'])
 def register():
