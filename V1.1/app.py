@@ -75,11 +75,14 @@ def login():
 def register():
 	"""Register Form"""
 	if request.method == 'POST':
-		new_user = User(username=request.form['username'], password=request.form['password'])
-		db.session.add(new_user)
-		db.session.commit()
-		return render_template('login.html')
-		return "Error.Username unavailable"
+		try:
+			new_user = User(username=request.form['username'], password=request.form['password'])
+			db.session.add(new_user)
+			db.session.commit()
+			return render_template('login.html')
+		except:
+			error="Error.Username unavailable.Please try again with a different username"
+			return render_template('register.html',error=error)
 	return render_template('register.html')
 
 @app.route("/logout")
