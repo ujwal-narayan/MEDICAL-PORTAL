@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+{% if session['logged_in'] %}
+<p>You're logged in already!</p>
+{% else %}
+<br>
+<h2>Login</h2>
+<form action="/login" method="POST">
+  <input type="username" name="username" placeholder="Username">
+  <input type="password" name="password" placeholder="Password">
+  <input type="submit" value="Log in">
+</form>
+<p>New User ? Click here to register </p>
+<a href="{{ url_for('register') }}">Register</a>
+
+{% endif %}
+{% endblock %}
