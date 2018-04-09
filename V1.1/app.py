@@ -2,7 +2,7 @@
 
 from flask import Flask, url_for, render_template, request, redirect, session
 from flask_sqlalchemy import SQLAlchemy
-
+import bcrypt
 
 
 app = Flask(__name__)
@@ -15,10 +15,16 @@ class User(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	username = db.Column(db.String(80), unique=True)
 	password = db.Column(db.String(80))
-
+	
 	def __init__(self, username, password):
 		self.username = username
-		self.password = password
+		self.password = bcrypt.hashpw(password.encode('utf8'),bcrypt.gensalt())
+	
+	def validate_password(self, password):
+		return bcrypt.verify(password, self.password)
+	def __repr__(self):return "<User(username ='%s', password='%s')>" % (self.username, self.password)
+
+
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -40,15 +46,18 @@ def login():
 	else:
 		name = request.form['username']
 		passw = request.form['password']
-		try:
-			data = User.query.filter_by(username=name, password=passw).first()
+		try :
+			data = User.query.filter_by(username=name).first()
 			if data is not None:
-				session['logged_in'] = True
-				return redirect(url_for('home'))
+				if bcrypt.checkpw(passw.encode('utf8'), data.password.encode('utf8')) :
+					session['logged_in'] = True
+					return redirect(url_for('home'))
+				else:
+					return "Incorrect password"
 			else:
 				return 'Dont Login'
-		except:
-			return "Dont Login"
+		except :
+			return "User not found "
 
 @app.route('/register/', methods=['GET', 'POST'])
 def register():
@@ -58,6 +67,7 @@ def register():
 		db.session.add(new_user)
 		db.session.commit()
 		return render_template('login.html')
+		return "Error.Username unavailable"
 	return render_template('register.html')
 
 @app.route("/logout")
