@@ -90,6 +90,14 @@ def logout():
 	"""Logout Form"""
 	session['logged_in'] = False
 	return redirect(url_for('home'))
+	
+@app.route("/bookapt")
+def bookapt():
+	return render_template('bookapt.html')
+
+@app.route("/finddoctor")
+def finddoctor():
+	return render_template('finddoctor.html')
 
 
 if __name__ == '__main__':
