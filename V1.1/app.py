@@ -3,11 +3,16 @@
 from flask import Flask, url_for, render_template, request, redirect, session
 from flask_sqlalchemy import SQLAlchemy
 import bcrypt
+import os
 
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY') or 'you-will-never-guess'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = 'False'
 db = SQLAlchemy(app)
+
+
 
 
 class User(db.Model):
@@ -49,9 +54,10 @@ def login():
         passw = request.form['password']
         try:
             data = User.query.filter_by(username=name).first()
+            print(data)
             if data is not None:
                 if bcrypt.checkpw(passw.encode('utf8'),
-                                  data.password.encode('utf8')):
+                                  data.password):
                     session['logged_in'] = True
                     return redirect(url_for('home'))
                 else:
@@ -66,7 +72,8 @@ def login():
                 # return redirect(url_for('login'))
                 return render_template('login.html', error=error)
 
-        except:
+        except Exception as e:
+            print(str(e))
             error = "An Error was encountered please try again"
             # return redirect(url_for('login'))
             return render_template('login.html', error=error)
