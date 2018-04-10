@@ -2,6 +2,7 @@
 
 from flask import Flask, url_for, render_template, request, redirect, session
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 import bcrypt
 import os
 
@@ -11,6 +12,7 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY') or 'you-will-never-guess
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = 'False'
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 
 
@@ -20,17 +22,24 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True)
     password = db.Column(db.String(80))
+    dayavail = db.Column(db.String(128))
+    starttime = db.Column(db.String(80))
+    endtime = db.Column(db.String(80))
 
-    def __init__(self, username, password):
+    def __init__(self, username, password, dayavail, starttime, endtime):
         self.username = username
         self.password = bcrypt.hashpw(
             password.encode('utf8'), bcrypt.gensalt())
+        self.dayavail = dayavail
+        self.starttime = starttime
+        self.endtime = endtime
 
     def validate_password(self, password):
         return bcrypt.verify(password, self.password)
 
-    def __repr__(self): return "<User(username ='%s', password='%s')>" % (
-        self.username, self.password)
+    def __repr__(self): return "<User(username ='%s', password='%s',\
+    dayavail='%s', starttime='%s', endtime='%s',)>" % (
+        self.username, self.password, self.dayavail, self.starttime, self.endtime)
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -86,11 +95,15 @@ def register():
         try:
             new_user = User(
                 username=request.form['username'],
-                password=request.form['password'])
+                password=request.form['password'],
+                dayavail='None',
+                starttime='None',
+                endtime='None')
             db.session.add(new_user)
             db.session.commit()
             return render_template('login.html')
-        except:
+        except Exception as e:
+            print(str(e))
             error = "Error.Username unavailable.Please try again \
             with a different username"
             return render_template('register.html', error=error)
@@ -104,17 +117,20 @@ def register_doctor():
         return render_template('register_doctor.html', days=days)
     elif request.method == 'POST':
         try:
+            day_avail_list=request.form.getlist('docavail')
+            avails = ",".join(day_avail_list)
             new_user = User(
                 username=request.form['username'],
                 password=request.form['password'],
-                day_avail_list=request.form.getlist('docavail'),
+                dayavail=avails,
                 starttime=request.form['timestart'],
                 endtime=request.form['timeend'])
                 
             db.session.add(new_user)
             db.session.commit()
             return render_template('login.html')
-        except:
+        except Exception as e:
+            print(str(e))
             error = "Error.Username unavailable.Please try again \
             with a different username"
             return render_template('register_doctor.html', error=error, days=days)
