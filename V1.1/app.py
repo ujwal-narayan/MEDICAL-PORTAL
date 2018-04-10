@@ -89,6 +89,30 @@ def register():
             return render_template('register.html', error=error)
     return render_template('register.html')
 
+@app.route('/register_doctor/', methods=['GET', 'POST'])
+def register_doctor():
+    """Register Form"""
+    days = ['Weekdays', 'Sat', 'Sun', 'Mon-Thu']
+    if request.method == 'GET':
+        return render_template('register_doctor.html', days=days)
+    elif request.method == 'POST':
+        try:
+            new_user = User(
+                username=request.form['username'],
+                password=request.form['password'],
+                day_avail_list=request.form.getlist('docavail'),
+                starttime=request.form['timestart'],
+                endtime=request.form['timeend'])
+                
+            db.session.add(new_user)
+            db.session.commit()
+            return render_template('login.html')
+        except:
+            error = "Error.Username unavailable.Please try again \
+            with a different username"
+            return render_template('register_doctor.html', error=error, days=days)
+    return render_template('register_doctor.html',days=days)
+
 
 @app.route("/logout")
 def logout():
