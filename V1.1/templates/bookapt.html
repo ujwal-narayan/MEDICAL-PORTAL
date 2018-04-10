@@ -1,13 +1,14 @@
 {% extends "base.html" %}
 {% block content %}
    
+<form action="/bookapt" method="POST">
 
 <div class="container">
     <div class="row">
-        <div class='col-sm-3'>
+        <div class='col-sm-4'>
             <div class="form-group">
                 <div class='input-group date' id='datetimepicker3'>
-                    <input type='text' class="form-control" />
+                    <input type='text' class="form-control" name="aptdate" type="string" />
                     <span class="input-group-addon mt-2">
                         <span class="fa fa-calendar"></span>
                     </span>
@@ -17,7 +18,8 @@
         <script type="text/javascript">
             $(function () {
                 $('#datetimepicker3').datetimepicker({
-                    format: 'LL'
+                    format: 'LL',
+                    useCurrent: true
                 });
             });
         </script>
@@ -26,10 +28,10 @@
 
 <div class="container">
     <div class="row">
-        <div class='col-sm-3'>
+        <div class='col-sm-4'>
             <div class="form-group">
                 <div class='input-group date' id='datetimepicker4'>
-                    <input type='text' class="form-control" />
+                    <input type='text' class="form-control" name="apttime" type="string" />
                     <span class="input-group-addon mt-2">
                         <span class="fa fa-clock-o"></span>
                     </span>
@@ -39,12 +41,54 @@
         <script type="text/javascript">
             $(function () {
                 $('#datetimepicker4').datetimepicker({
-                    format: 'LT'
+                    format: 'LT',
+                    useCurrent: true
                 });
             });
         </script>
     </div>
 </div>
- 
+<div class="container">
+    <div class="row">
+        <div class='col-sm-4'>
+            <div class="form-group">
+                <div class='input-group' id='doctor'>
+                            <select name="aptdoc" class="form-control">
+                            {% for x in docs %}
+                            <option value="{{ x }}" SELECTED>{{ x }}</option>
+                            {% endfor %}
+                            </select>
+                            <span class="input-group-addon mt-2">
+                             <span class="fa fa-user-md"></span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class='col-sm-4'>
+            <div class="form-group">
+                <div class='input-group date' id='s4'>
+                    <input type='submit' class="form-control" name="aptsubmit" />
+                    <!-- <span class="input-group-addon mt-2">
+                        <span class="fa fa-clock-o"></span>
+                    </span> -->
+                </div>
+            </div>
+        </div>
+      <!--   <script type="text/javascript">
+            $(function () {
+                $('#s4').datetimepicker({
+                    format: 'LT',
+                    useCurrent: true
+                });
+            });
+        </script> -->
+    </div>
+</div>
+
+</form>
 {% endblock %}
         
