@@ -25,21 +25,24 @@ class User(db.Model):
     dayavail = db.Column(db.String(128))
     starttime = db.Column(db.String(80))
     endtime = db.Column(db.String(80))
+    hospital = db.Column(db.String(255))
 
-    def __init__(self, username, password, dayavail, starttime, endtime):
+    def __init__(self, username, password, dayavail, starttime, endtime, hospital):
         self.username = username
         self.password = bcrypt.hashpw(
             password.encode('utf8'), bcrypt.gensalt())
         self.dayavail = dayavail
         self.starttime = starttime
         self.endtime = endtime
+        self.hospital = hospital
 
     def validate_password(self, password):
         return bcrypt.verify(password, self.password)
 
     def __repr__(self): return "<User(username ='%s', password='%s',\
-    dayavail='%s', starttime='%s', endtime='%s',)>" % (
-        self.username, self.password, self.dayavail, self.starttime, self.endtime)
+    dayavail='%s', starttime='%s', endtime='%s', hospital='%s',)>" % (
+        self.username, self.password, self.dayavail, self.starttime, \
+        self.endtime, self.hospital)
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -98,7 +101,8 @@ def register():
                 password=request.form['password'],
                 dayavail='None',
                 starttime='None',
-                endtime='None')
+                endtime='None',
+                hospital='None')
             db.session.add(new_user)
             db.session.commit()
             return render_template('login.html')
@@ -124,7 +128,8 @@ def register_doctor():
                 password=request.form['password'],
                 dayavail=avails,
                 starttime=request.form['timestart'],
-                endtime=request.form['timeend'])
+                endtime=request.form['timeend'],
+                hospital=request.form['hospitalname'])
                 
             db.session.add(new_user)
             db.session.commit()
