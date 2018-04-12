@@ -2,93 +2,174 @@
 {% block content %}
    
 <form action="/bookapt" method="POST">
+    <div class="container">
+        <div class="row">
+            <div class='col-sm-4'>
+                <div class="form-group">
+                    <div class='input-group' id="iddoctor2">
+                                <select name="aptdoc" class="form-control" id="iddoctor3">
+                                {% for x in docs %}
+                                <option value="{{ x }}" SELECTED>{{ x }}</option>
+                                {% endfor %}
+                                </select>
+                                <span class="input-group-addon mt-2">
+                                 <span class="fa fa-user-md"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<div class="container">
-    <div class="row">
-        <div class='col-sm-4'>
-            <div class="form-group">
-                <div class='input-group date' id='datetimepicker3'>
-                    <input type='text' class="form-control" name="aptdate" type="string" />
-                    <span class="input-group-addon mt-2">
-                        <span class="fa fa-calendar"></span>
-                    </span>
+    <div class="container">
+        <div class="row">
+            <div class='col-sm-4'>
+                <div class="form-group">
+                    <div class='input-group date' id='datetimepicker3'>
+                        <input type='text' class="form-control" name="aptdate" type="string" id="iddate"/>
+                        <span class="input-group-addon mt-2">
+                            <span class="fa fa-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <script type="text/javascript">
+                $(function () {
+                    $('#datetimepicker3').datetimepicker({
+                        format: 'L',
+                        // closeOnDateSelect: true,
+                        icons: {
+                            time: 'fa fa-clock-o',
+                            date: 'fa fa-calendar',
+                            up: 'fa fa-plus',
+                            down: 'fa fa-minus',
+                            next: 'fa fa-chevron-right',
+                            previous: 'fa fa-chevron-left'
+                        },
+                    });
+                });
+            </script>
+     
+        </div>
+    </div>
+        <div class="container">
+        <div class="row">
+            <div class='col-sm-4'>
+                <div class="form-group">
+                    <div class='input-group' id="idslot2">
+                                <select name="aptslot" class="form-control" id="idslot">
+                                {% for x in slots %}
+                                <option value="{{ x }}" SELECTED>{{ x }}</option>
+                                {% endfor %}
+                                </select>
+                                <span class="input-group-addon mt-2">
+                                 <span class="fa fa-clock-o"></span>
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
-        <script type="text/javascript">
-            $(function () {
-                $('#datetimepicker3').datetimepicker({
-                    format: 'LL',
-                    useCurrent: true
-                });
-            });
-        </script>
     </div>
-</div>
 
-<div class="container">
-    <div class="row">
-        <div class='col-sm-4'>
-            <div class="form-group">
-                <div class='input-group date' id='datetimepicker4'>
-                    <input type='text' class="form-control" name="apttime" type="string" />
-                    <span class="input-group-addon mt-2">
-                        <span class="fa fa-clock-o"></span>
-                    </span>
-                </div>
-            </div>
-        </div>
-        <script type="text/javascript">
-            $(function () {
-                $('#datetimepicker4').datetimepicker({
-                    format: 'LT',
-                    useCurrent: true
-                });
-            });
-        </script>
-    </div>
-</div>
-<div class="container">
-    <div class="row">
-        <div class='col-sm-4'>
-            <div class="form-group">
-                <div class='input-group' id='doctor'>
-                            <select name="aptdoc" class="form-control">
-                            {% for x in docs %}
-                            <option value="{{ x }}" SELECTED>{{ x }}</option>
-                            {% endfor %}
-                            </select>
-                            <span class="input-group-addon mt-2">
-                             <span class="fa fa-user-md"></span>
-                    </span>
+    <div class="container">
+        <div class="row">
+            <div class='col-sm-4'>
+                <div class="form-group">
+                    <div class='input-group date' id='s4'>
+                        <input type='submit' class="form-control" name="aptsubmit" />
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-<div class="container">
-    <div class="row">
-        <div class='col-sm-4'>
-            <div class="form-group">
-                <div class='input-group date' id='s4'>
-                    <input type='submit' class="form-control" name="aptsubmit" />
-                    <!-- <span class="input-group-addon mt-2">
-                        <span class="fa fa-clock-o"></span>
-                    </span> -->
-                </div>
-            </div>
-        </div>
-      <!--   <script type="text/javascript">
-            $(function () {
-                $('#s4').datetimepicker({
-                    format: 'LT',
-                    useCurrent: true
-                });
-            });
-        </script> -->
-    </div>
-</div>
+  <script type="text/javascript">
+    $(function() {
+       
+        // jQuery selection for the 2 select boxes
+        var dropdownS = {
+          
+            slot: $('#idslot'),
+            date1: $('#iddate')
+            
+        };
+        var dropdownD = {
+          
+            date1: $('#iddate'),
+            doctor: $('#iddoctor3')
+            
+        };
 
-</form>
-{% endblock %}
         
+        updateDate();
+        updateSlots();
+
+        
+        function updateSlots() {
+            var send = {
+                date1: dropdownS.date1.val()
+            };
+          
+            dropdownS.slot.attr('disabled', 'disabled');
+            dropdownS.slot.empty();
+            $.getJSON("{{ url_for('_get_slots') }}", send, function(data) {
+                data.forEach(function(item) {
+                 dropdownS.slot.append(
+                        $('<option>', {
+                            value: item,
+                            text: item
+                        })
+                    );
+                   
+                });
+                dropdownS.slot.removeAttr('disabled');
+            });
+        }
+        function updateDate() {
+            var send = {
+                doctor: dropdownD.doctor.val()
+            };
+           
+            $.getJSON("{{ url_for('_get_dates') }}", send, function(data) {
+                var list =[];
+                var dlist = [];
+                $.each( data, function( i, field ) {
+              
+                     $.each( field, function( key, val ) {
+                              if(key == "dates"){
+                                 list = val; 
+                              }
+                              if(key == "days"){
+                                dlist = val;
+                              }
+                     }); 
+                       
+                   
+                });
+            
+                $('#datetimepicker3').data('DateTimePicker').disabledDates(list);
+                $('#datetimepicker3').data('DateTimePicker').daysOfWeekDisabled(dlist);
+                // $('#datetimepicker3').data('DateTimePicker').defaultDate();
+            });
+        }
+
+        // event listener to doctor dropdown change
+       $('#iddoctor3').on('change', function() {
+            updateDate();
+        });
+       $('#datetimepicker3').datetimepicker().on("dp.change", function(ev){
+            updateSlots();
+            // $('#iddate').change();
+        });
+       
+       $('#iddate').on('change', function() {
+            updateSlots();
+        });
+    });
+   
+</script>      
+</form>
+
+
+{% endblock %}
+
+ 

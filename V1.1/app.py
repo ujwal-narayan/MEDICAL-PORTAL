@@ -1,10 +1,13 @@
 
 
-from flask import Flask, url_for, render_template, request, redirect, session
+from flask import Flask, flash, url_for, render_template, request, redirect, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask import jsonify
+
 import bcrypt
 import os
+import datetime
 
 
 app = Flask(__name__)
@@ -158,13 +161,84 @@ def finddoctor():
 def bookapt():
     if request.method == 'GET':
         docs = ['Doctor1', 'Doctor2', 'Doctor3']
-        return render_template('bookapt.html',  docs=docs)
+        tlist = {
+                 'Doctor1':['8:15', '10:15', '13:15'],
+                 'Doctor2':['8:30', '10:40', '13:40'],
+                 'Doctor3':['14:15', '15:15', '16:15']
+        }
+        # start_time = '8:00'
+        # end_time = '17:00'
+        # slot_time = 15
+        # time = datetime.datetime.strptime(start_time, '%H:%M')
+        # end = datetime.datetime.strptime(end_time, '%H:%M')
+        # slots = []
+        # while time <= end:
+        #     print(time)
+        #     slots.append(time.strftime("%H:%M"))
+        #     time += datetime.timedelta(minutes=slot_time)
+        # print(slots)
+        return render_template('bookapt.html',  docs=docs, slots=tlist['Doctor3'])
         # return render_template('bookapt.html')
     else:
         aptdate = request.form['aptdate']
-        apttime = request.form['apttime']
+        apttime = request.form['aptslot']
         aptdoc = request.form['aptdoc']
+        print(aptdate)
+        print(apttime)
+        print(aptdoc)
+        flash('Your appointment is added, you will get confiramtion email shortly')
+        return redirect(url_for('bookapt'))
 
+@app.route('/_get_slots/')
+def _get_slots():
+    doc = request.args.get('date1', '01', type=str)
+    print(doc)
+    dates = ['04/20/2018', '04/12/2018', '04/16/2018']
+    tlist = {
+             '06/20/2018':['8:15', '10:15', '13:15'],
+             '04/12/2018':['8:30', '10:40', '13:40'],
+             '05/16/2018':['14:15', '15:15', '16:15'],
+             '07/20/2018':['9:15', '14:15', '18:15']
+    }
+    # counties = [(row.ID, row.Name) for row in County.query.filter_by(state=state).all()]
+    try:
+        list1 = tlist[doc]
+    except:
+        # print("beforeflash")
+        # flash('Not available please select different day')
+        return jsonify([])
+
+    return jsonify(list1)
+@app.route('/_get_dates/')
+def _get_dates():
+    doc = request.args.get('doctor', '01', type=str)
+    print(doc)
+    docs = ['Doctor1', 'Doctor2', 'Doctor3']
+    tlist = {
+             'Doctor1':['4/20/2018', '4/19/2018', '4/18/2018'],
+                        
+             'Doctor2':['5/21/2018', '5/23/2018', '5/22/2018'],
+                        
+             'Doctor3':['6/20/2018', '6/22/2018', '6/23/2018'],
+                        
+    }
+    dlist = {
+             'Doctor1':[0,6],
+                        
+             'Doctor2':[0,5,6],
+                        
+             'Doctor3':[1,2,3,4],
+    }
+    # counties = [(row.ID, row.Name) for row in County.query.filter_by(state=state).all()]
+    try:
+        list1 = tlist[doc]
+        dlist1 = dlist[doc]
+    except:
+         flash('Not available please select different doctor')
+         return jsonify({"dates":list1}, {"days":dlist1})
+
+
+    return jsonify({"dates":list1}, {"days":dlist1})
 
 if __name__ == '__main__':
     app.debug = True
