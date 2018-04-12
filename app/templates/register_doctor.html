@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block content %}
+{% if session['logged_in'] %}
+<p>Oh no Dont show page</p>
+{% else %}
+<br>
+<div class="container">
+    <div class="row">
+    <div class='col-sm-4'>
+         <h2>Register</h2>
+     </div>
+    </div>
+</div>
+
+<form action="/register_doctor/" method="POST">
+	<div class="container">
+        <div class="row">
+            <div class='col-sm-4'>
+                <div class="form-group">
+                    <div class='input-group date' id='s4'>
+                        <input type="username" name="username" placeholder="Username" class="form-control"/>
+                    </div>
+                </div>
+            </div>
+          </div>
+    </div>
+
+  <div class="container">
+     <div class="row">
+        <div class='col-sm-4'>
+            <div class="form-group">
+                <div class='input-group date' id='s4'>
+                    <input type="password" name="password" placeholder="Password" class="form-control"/>
+                </div>
+            </div>
+        </div>
+     </div>
+  </div>
+  <div class="container">
+        <div class="row">
+            <div class='col-sm-4'>
+                <div class="form-group">
+                    <div class='input-group date' id='s4'>
+                        <input type="text" name="hospitalname" placeholder="Hospital name" class="form-control"/>
+                    </div>
+                </div>
+            </div>
+          </div>
+    </div>
+
+  <div class="container form-group ">
+    <div class="row">
+
+          <div class="container">
+            <div class="row">
+                <div class='col-sm-4'>
+                    <div class="form-group">
+                        <label for="days">Days: (Use shift/ctrl to select more than one)</label>
+                        <div class='input-group' id='days'>
+                                    <select multiple id ="docavail" name="docavail" class="form-control">
+                                    {% for x in days %}
+                                    <option value="{{ x }}" SELECTED>{{ x }}</option>
+                                    {% endfor %}
+                                    </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+          </div>
+    </div>
+
+    <div class="row">
+          <div class="container">
+                <div class="row">
+                    <div class='col-sm-2'>
+                        <div class="form-group">
+                        	<label for="datetimepicker3">From:</label>
+                            <div class='input-group date' id='datetimepicker3'>
+                                <input type='text' class="form-control" name="timestart" type="string" />
+                                <span class="input-group-addon mt-2">
+                                    <span class="fa fa-clock-o"></span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <script type="text/javascript">
+                        $(function () {
+                            $('#datetimepicker3').datetimepicker({
+                                format: 'LT',
+                                useCurrent: true
+                            });
+                        });
+                    </script>
+                    <div class='col-sm-2'>
+                        <div class="form-group">
+                        	<label for="datetimepicker4">To:</label>
+                            <div class='input-group date' id='datetimepicker4'>
+                                <input type='text' class="form-control" name="timeend" type="string" />
+                                <span class="input-group-addon mt-2">
+                                    <span class="fa fa-clock-o"></span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <script type="text/javascript">
+                        $(function () {
+                            $('#datetimepicker4').datetimepicker({
+                                format: 'LT',
+                                useCurrent: true
+                            });
+                        });
+                    </script>
+                </div>
+          </div>
+    </div>
+
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class='col-sm-4'>
+            <div class="form-group">
+                <div class='input-group date' id='s4'>
+                    <input type='submit' class="form-control" name="aptsubmit" value="Register" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</form>
+{% if error %}
+<p><strong>{{ error }}</strong></p>
+{% endif %}
+{% endif %}
+{% endblock %}

@@ -9,43 +9,18 @@ import bcrypt
 import os
 import datetime
 
+from app import app, model, db
+from app.model import User
 
-app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY') or 'you-will-never-guess'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = 'False'
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
+# app = Flask(__name__)
+# app.config['SECRET_KEY'] = os.environ.get(
+#     'SECRET_KEY') or 'you-will-never-guess'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
+# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = 'False'
+# db = SQLAlchemy(app)
+# migrate = Migrate(app, db)
 
 
-
-
-class User(db.Model):
-    """ Create user table"""
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True)
-    password = db.Column(db.String(80))
-    dayavail = db.Column(db.String(128))
-    starttime = db.Column(db.String(80))
-    endtime = db.Column(db.String(80))
-    hospital = db.Column(db.String(255))
-
-    def __init__(self, username, password, dayavail, starttime, endtime, hospital):
-        self.username = username
-        self.password = bcrypt.hashpw(
-            password.encode('utf8'), bcrypt.gensalt())
-        self.dayavail = dayavail
-        self.starttime = starttime
-        self.endtime = endtime
-        self.hospital = hospital
-
-    def validate_password(self, password):
-        return bcrypt.verify(password, self.password)
-
-    def __repr__(self): return "<User(username ='%s', password='%s',\
-    dayavail='%s', starttime='%s', endtime='%s', hospital='%s',)>" % (
-        self.username, self.password, self.dayavail, self.starttime, \
-        self.endtime, self.hospital)
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -116,6 +91,7 @@ def register():
             return render_template('register.html', error=error)
     return render_template('register.html')
 
+
 @app.route('/register_doctor/', methods=['GET', 'POST'])
 def register_doctor():
     """Register Form"""
@@ -124,8 +100,34 @@ def register_doctor():
         return render_template('register_doctor.html', days=days)
     elif request.method == 'POST':
         try:
-            day_avail_list=request.form.getlist('docavail')
-            avails = ",".join(day_avail_list)
+            day_avail_list = request.form.getlist('docavail')
+            day_not_avail = [1 for x in range(7)]
+            for day in day_avail_list:
+                print(day)
+                if day == days[0]:
+                    i = 1
+                    while i <= 5:
+                        day_not_avail[i] = 0
+                        i += 1
+                print(day_not_avail)
+                if day == days[1]:
+                    day_not_avail[6] =0
+                if day == days[2]:
+                    day_not_avail[0] =0
+                if day == days[3]:
+                    i = 1
+                    while i<=4:
+                        day_not_avail[i] = 0
+                        i +=1
+            i =0
+            avails = ""
+            while i<=6:
+                if day_not_avail[i] == 1:
+                     avails += str(i)
+                i += 1
+
+            print(avails);
+            # avails = ",".join(day_avail_list)
             new_user = User(
                 username=request.form['username'],
                 password=request.form['password'],
