@@ -23,15 +23,19 @@ from app.model import User
 
 
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/', methods=['GET'])
 def home():
     """ Session control"""
-    if not session.get('logged_in'):
-        return render_template('index.html')
-    else:
-        if request.method == 'POST':
+    if 'logged_in' in session:
+        if not session['logged_in']:
             return render_template('index.html')
-        return render_template('index.html')
+        else:
+            if 'usertype' in session:
+                if session['usertype'] == User.Doctor:
+                    return render_template('doctor_index.html')
+            else:
+                return render_template('index.html')
+    return render_template('index.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -44,11 +48,14 @@ def login():
         passw = request.form['password']
         try:
             data = User.query.filter_by(username=name).first()
-            print(data)
+            print(User.Doctor)
+            print(User.days)
             if data is not None:
                 if bcrypt.checkpw(passw.encode('utf8'),
                                   data.password):
                     session['logged_in'] = True
+                    session['username'] = name
+                    session['usertype'] = data.usertype
                     return redirect(url_for('home'))
                 else:
 
@@ -76,6 +83,8 @@ def register():
         try:
             new_user = User(
                 username=request.form['username'],
+                usertype=User.Patient,
+                email=request.form['email'],
                 password=request.form['password'],
                 dayavail='None',
                 starttime='None',
@@ -95,47 +104,24 @@ def register():
 @app.route('/register_doctor/', methods=['GET', 'POST'])
 def register_doctor():
     """Register Form"""
-    days = ['Weekdays', 'Sat', 'Sun', 'Mon-Thu']
+    
     if request.method == 'GET':
-        return render_template('register_doctor.html', days=days)
+        return render_template('register_doctor.html', days=User.days)
     elif request.method == 'POST':
         try:
             day_avail_list = request.form.getlist('docavail')
-            day_not_avail = [1 for x in range(7)]
-            for day in day_avail_list:
-                print(day)
-                if day == days[0]:
-                    i = 1
-                    while i <= 5:
-                        day_not_avail[i] = 0
-                        i += 1
-                print(day_not_avail)
-                if day == days[1]:
-                    day_not_avail[6] =0
-                if day == days[2]:
-                    day_not_avail[0] =0
-                if day == days[3]:
-                    i = 1
-                    while i<=4:
-                        day_not_avail[i] = 0
-                        i +=1
-            i =0
-            avails = ""
-            while i<=6:
-                if day_not_avail[i] == 1:
-                     avails += str(i)
-                i += 1
-
+            avails = User.get_not_avail_days(day_avail_list)
             print(avails);
             # avails = ",".join(day_avail_list)
             new_user = User(
                 username=request.form['username'],
+                usertype=User.Doctor,
+                email=request.form['email'],
                 password=request.form['password'],
                 dayavail=avails,
                 starttime=request.form['timestart'],
                 endtime=request.form['timeend'],
                 hospital=request.form['hospitalname'])
-                
             db.session.add(new_user)
             db.session.commit()
             return render_template('login.html')
@@ -143,14 +129,16 @@ def register_doctor():
             print(str(e))
             error = "Error.Username unavailable.Please try again \
             with a different username"
-            return render_template('register_doctor.html', error=error, days=days)
-    return render_template('register_doctor.html',days=days)
+            return render_template('register_doctor.html', error=error, days=User.days)
+    return render_template('register_doctor.html',days=User.days)
 
 
 @app.route("/logout")
 def logout():
     """Logout Form"""
     session['logged_in'] = False
+    session.pop('username', None)
+    session.pop('usertype', 0)
     return redirect(url_for('home'))
 
 
