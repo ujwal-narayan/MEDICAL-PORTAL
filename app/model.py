@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from app import db
 import bcrypt
 import os
@@ -36,20 +36,18 @@ class User(db.Model):
     def validate_password(self, password):
         return bcrypt.verify(password, self.password)
 
-    def __repr__(self):  return "<User(username ='%s', usertype='%s', email='%s', password='%s',dayavail='%s', starttime='%s', endtime='%s', hospital='%s',)>" % (
-            self.username, self.usertype, self.email, self.password, self.dayavail, self.starttime,
+    def __repr__(self):  return "<User(username ='%s', usertype='%s',,dayavail='%s', starttime='%s', endtime='%s', hospital='%s',)>" % (
+            self.username, self.usertype,  self.dayavail, self.starttime,
             self.endtime, self.hospital)
 
     def get_not_avail_days(day_avail_list):
         day_not_avail = [1 for x in range(7)]
         for day in day_avail_list:
-            print(day)
             if day == User.days[0]:
                 i = 1
                 while i <= 5:
                     day_not_avail[i] = 0
                     i += 1
-            print(day_not_avail)
             if day == User.days[1]:
                 day_not_avail[6] =0
             if day == User.days[2]:
@@ -75,10 +73,54 @@ class Appointments(db.Model):
     patient_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     doctor_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-    def __init__(self, date, slot, userid, doctorid):
+    def __init__(self, date, slot, patient_id, doctor_id):
         self.date = date
         self.slot = slot
         self.patient_id = patient_id
         self.doctor_id = doctor_id
 
+    def get_slots_avail(starttime, endtime, slotlist, slot_time=15):
+        eh = endtime.split(":")
+        ehi = int(eh[0])+12 
+        etime = str(ehi) + ":" + eh[1][0:-3]
+        time = datetime.strptime(starttime[0:-3], '%H:%M')
+        end = datetime.strptime(etime, '%H:%M')
+        slots = []
+        found = 0
+        while time <= end:
+            slot = time.strftime("%H:%M")
+            for s in slotlist:
+                if slot == s[-1]:
+                     found = 1
+                     print("found")
+                     break;
+            if found == 0:
+                slots.append(slot)
+            else:
+                found = 0
+            time += timedelta(minutes=slot_time)
+        print(slots)
+        return slots
+
+    def AMPM_to_24(time):
+        if time[-2] == "P":
+            eh =  time.split(":")
+            ehi = int(eh[0])+12 
+            return str(ehi) + ":" + eh[1][0:-3]
+        else:
+            return time[0:-3]
+
+    def hm_to_mins(t):
+        h, m = [int(i) for i in t.split(':')]
+        return 60*h + m
+
+    def get_max_slots(starttime, endtime, slot_time=15):
+        st = Appointments.AMPM_to_24(starttime)
+        et = Appointments.AMPM_to_24(endtime)
+        print(st)
+        print(et)
+        sm = Appointments.hm_to_mins(st)
+        em = Appointments.hm_to_mins(et)
+        return (em-sm)/15
+        
     def __repr__(self):  return "<Appointments(date ='%s', slot='%s' )>" % (self.date, self.slot)
