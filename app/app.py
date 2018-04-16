@@ -2,6 +2,7 @@
 
 from flask import Flask, flash, url_for, render_template, request, redirect, session
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import func
 from flask_migrate import Migrate
 from flask import jsonify
 
@@ -10,7 +11,7 @@ import os
 import datetime
 
 from app import app, model, db
-from app.model import User
+from app.model import User, Appointments
 
 # app = Flask(__name__)
 # app.config['SECRET_KEY'] = os.environ.get(
@@ -155,85 +156,93 @@ def calendar():
 @app.route("/bookapt", methods=['GET', 'POST'])
 def bookapt():
     if request.method == 'GET':
-        docs = ['Doctor1', 'Doctor2', 'Doctor3']
-        tlist = {
-                 'Doctor1':['8:15', '10:15', '13:15'],
-                 'Doctor2':['8:30', '10:40', '13:40'],
-                 'Doctor3':['14:15', '15:15', '16:15']
-        }
-        # start_time = '8:00'
-        # end_time = '17:00'
-        # slot_time = 15
-        # time = datetime.datetime.strptime(start_time, '%H:%M')
-        # end = datetime.datetime.strptime(end_time, '%H:%M')
-        # slots = []
-        # while time <= end:
-        #     print(time)
-        #     slots.append(time.strftime("%H:%M"))
-        #     time += datetime.timedelta(minutes=slot_time)
-        # print(slots)
-        return render_template('bookapt.html',  docs=docs, slots=tlist['Doctor3'])
-        # return render_template('bookapt.html')
+        doclist = User.query.with_entities(User.id, User.username, User.dayavail, User.starttime, User.endtime).filter_by(usertype=User.Doctor).all()
+        docid = doclist[-1].id
+        # print("docid")
+        # print(docid)
+        # print("dayavail")
+        daylist = doclist[-1].dayavail
+        print(daylist)
+        
+        return render_template('bookapt.html',  docs=doclist,  daylist=daylist)
     else:
+        print("POST")
         aptdate = request.form['aptdate']
         apttime = request.form['aptslot']
         aptdoc = request.form['aptdoc']
+        username = session['username']
+        patient = User.query.with_entities(User.id).filter_by(username=username).first()
+        doc = User.query.with_entities(User.id).filter_by(username=aptdoc).first()
+        print(patient.id)
+        print(doc.id)
         print(aptdate)
         print(apttime)
         print(aptdoc)
+        new_apt = Appointments(
+                date=aptdate,
+                slot=apttime,
+                patient_id=patient.id,
+                doctor_id=doc.id)
+        db.session.add(new_apt)
+        db.session.commit()
+ 
         flash('Your appointment is added, you will get confiramtion email shortly')
         return redirect(url_for('bookapt'))
 
 @app.route('/_get_slots/')
 def _get_slots():
-    doc = request.args.get('date1', '01', type=str)
-    print(doc)
-    dates = ['04/20/2018', '04/12/2018', '04/16/2018']
-    tlist = {
-             '06/20/2018':['8:15', '10:15', '13:15'],
-             '04/12/2018':['8:30', '10:40', '13:40'],
-             '05/16/2018':['14:15', '15:15', '16:15'],
-             '07/20/2018':['9:15', '14:15', '18:15']
-    }
-    # counties = [(row.ID, row.Name) for row in County.query.filter_by(state=state).all()]
     try:
-        list1 = tlist[doc]
-    except:
+        doc = request.args.get('doctor', '01', type=str)
+        # print("get_slots")
+        # print(doc)
+        doclist = User.query.with_entities(User.id, User.starttime, User.endtime).filter_by(username=doc).all()
+        docid = doclist[-1].id
+        date = request.args.get('date1', '01', type=str)
+        # print(doc)
+        # print(date)
+        slotlist =  Appointments.query.with_entities(Appointments.slot).filter_by(doctor_id=docid).filter_by(date=date).all()
+        # print(slotlist)
+        slist = Appointments.get_slots_avail(doclist[-1].starttime, doclist[-1].endtime, slotlist, 15)
+        print(slist)
+   
+    except Exception as e:
+        print(str(e))
         # print("beforeflash")
         # flash('Not available please select different day')
         return jsonify([])
 
-    return jsonify(list1)
+    return jsonify(slist)
 @app.route('/_get_dates/')
 def _get_dates():
-    doc = request.args.get('doctor', '01', type=str)
-    print(doc)
-    docs = ['Doctor1', 'Doctor2', 'Doctor3']
-    tlist = {
-             'Doctor1':['4/20/2018', '4/19/2018', '4/18/2018'],
-                        
-             'Doctor2':['5/21/2018', '5/23/2018', '5/22/2018'],
-                        
-             'Doctor3':['6/20/2018', '6/22/2018', '6/23/2018'],
-                        
-    }
-    dlist = {
-             'Doctor1':[0,6],
-                        
-             'Doctor2':[0,5,6],
-                        
-             'Doctor3':[1,2,3,4],
-    }
-    # counties = [(row.ID, row.Name) for row in County.query.filter_by(state=state).all()]
     try:
-        list1 = tlist[doc]
-        dlist1 = dlist[doc]
-    except:
+        datelist = []
+        daylist = []
+        doc = request.args.get('doctor', '01', type=str)
+        # print("get_dates")
+        # print(doc)
+        dlist = User.query.with_entities(User.id, User.dayavail, User.starttime, User.endtime).filter_by(username=doc).all()
+        docid = dlist[-1].id
+        daylist = dlist[-1].dayavail.split()
+        datelist =  Appointments.query.with_entities(func.count(Appointments.date), Appointments.date).filter_by(doctor_id=docid).all()
+        max_slots = Appointments.get_max_slots(dlist[-1].starttime, dlist[-1].endtime)
+        print("max_slots")
+        print(max_slots)
+        # print(datelist)
+        final_list = []
+        for date1 in datelist:
+            print(date1[0])
+            if date1[0] >= 10:
+                final_list.append(date1.date)
+        print(daylist)
+        print(final_list)
+       
+    except Exception as e:
+         print(str(e))
          flash('Not available please select different doctor')
-         return jsonify({"dates":list1}, {"days":dlist1})
+         return jsonify({"dates":[]}, {"days":[]})
+    
 
-
-    return jsonify({"dates":list1}, {"days":dlist1})
+    return jsonify({"dates":final_list}, {"days":daylist})
 
 if __name__ == '__main__':
     app.debug = True
