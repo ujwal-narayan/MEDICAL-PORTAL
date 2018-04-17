@@ -157,6 +157,11 @@ def finddoctor():
     return render_template('finddoctor.html')
 
 
+@app.route("/calendar")
+def calendar():
+    return render_template('calendar.html')
+
+
 @app.route("/bookapt", methods=['GET', 'POST'])
 def bookapt():
     if request.method == 'GET':
