@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block content %}
+   
+
+<form action="/reimbursemtform" method="POST" class="ml-20" enctype = "multipart/form-data">
+<div class="container  justify-content-center">
+<div class="row ">
+<div class="col-sm-4">
+<div class="card ">
+ <div class="card-header text-center">
+ Please provide your bank details 
+</div>
+  <div class="card-body">
+<!--     <h5 class="card-title">Please provide your bank details</h5>
+ -->      <div class="form-group">
+           <label for="idbname">Bank Name:</label>
+           <input type='text' class="form-control" name="bname" type="string" id="idbname"/>
+     </div>
+     <div class="form-group">
+           <label for="idbifsc">Bank IFSC:</label>
+           <input type='text' class="form-control" name="bifsc" type="string" id="idbifsc"/>
+    </div>
+    <div class="form-group">
+           <label for="idbactname">Bank Account Holder Name:</label>
+          <input type='text' class="form-control" name="bactname" type="string" id="idbactname"/>
+    </div>
+    <div class="form-group">
+           <label for="idbactnum">Bank Account Number:</label>
+           <input type='text' class="form-control" name="bactnum" type="string" id="idbactnum"/>
+    
+    </div>
+     
+  </div>
+</div>
+</div>
+</div>
+<br>
+
+<div class="row ">
+<div class="col-sm-4">
+<div class="card">
+ <div class="card-header text-center">
+    Please provide your Receipt details
+  </div>
+  <div class="card-body">
+    <!-- <h5 class="card-title"></h5> -->
+      <div class="form-group">
+           <label for="idbrno">Bill Receipt/Cash Memo number:</label>
+           <input type='text' class="form-control" name="brno" type="string" id="idbrno"/>
+     </div>
+
+  
+        <div class="form-group">
+         <label for="datetimepicker3">Bill Date:</label>
+
+            <div class='input-group date' id='datetimepicker3'>
+                <input type='text' class="form-control" name="brsdate" type="string" id="iddate"/>
+                <span class="input-group-addon mt-2">
+                    <span class="fa fa-calendar"></span>
+                </span>
+            </div>
+        </div>
+
+    <script type="text/javascript">
+        $(function () {
+            $('#datetimepicker3').datetimepicker({
+                format: 'L',
+                // closeOnDateSelect: true,]
+                useCurrent:true,
+                icons: {
+                    time: 'fa fa-clock-o',
+                    date: 'fa fa-calendar',
+                    up: 'fa fa-plus',
+                    down: 'fa fa-minus',
+                    next: 'fa fa-chevron-right',
+                    previous: 'fa fa-chevron-left'
+                },
+            });
+        });
+
+        // $('#datetimepicker3').data('DateTimePicker').disabledDates(datelist);
+        // $('#datetimepicker3').data('DateTimePicker').daysOfWeekDisabled(daylist);
+    </script>
+     
+   
+    <div class="form-group">
+           <label for="idbamt">Amount:<i class="fa fa-inr"></i></label>
+          <input type='text' class="form-control" name="bramt" type="string" id="idbamt"/>
+          
+    </div>
+
+   <!--  <div class="custom-file form-group">
+      <input type="file" class="custom-file-input" id="customFile">
+        <label class="custom-file-label" for="customFile">upload scanned copy of bill</label>
+     </div> -->
+    <div class="form-group">
+           <label for="idfile">Select file name of scanned copy of the bill:</label>
+          <input type = "file" name = "file" id="idfile" />
+          
+    </div>
+     
+  </div>
+</div>
+</div>
+</div>
+
+<br>
+<div class="row ">
+<div class="col-sm-4">
+  <div class="form-group ">
+          <input type='submit' class="form-control" name="reimbsubmit" />
+  </div>
+</div>
+</div>
+
+</div>
+</form>
+
+{% endblock %}
+
+ 

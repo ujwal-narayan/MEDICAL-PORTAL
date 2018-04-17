@@ -5,13 +5,15 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
 from flask_migrate import Migrate
 from flask import jsonify
+from werkzeug import secure_filename
+
 
 import bcrypt
 import os
 import datetime
 
 from app import app, model, db
-from app.model import User, Appointments
+from app.model import User, Appointments, BankInfo, Reimbdata
 
 # app = Flask(__name__)
 # app.config['SECRET_KEY'] = os.environ.get(
@@ -28,11 +30,16 @@ from app.model import User, Appointments
 def home():
     """ Session control"""
     if 'logged_in' in session:
+        print("login in session")
         if not session['logged_in']:
+
+            print("not session logged in")
             return render_template('index.html')
         else:
             if 'usertype' in session:
+                print("usertype in sessiom")
                 if session['usertype'] == User.Doctor:
+                    print("doctor")
                     return render_template('doctor_index.html')
             else:
                 return render_template('index.html')
@@ -57,6 +64,7 @@ def login():
                     session['logged_in'] = True
                     session['username'] = name
                     session['usertype'] = data.usertype
+                    session['userid']  = data.id
                     return redirect(url_for('home'))
                 else:
 
@@ -140,6 +148,7 @@ def logout():
     session['logged_in'] = False
     session.pop('username', None)
     session.pop('usertype', 0)
+    session.pop('userid', 0)
     return redirect(url_for('home'))
 
 
@@ -238,6 +247,155 @@ def _get_dates():
     
 
     return jsonify({"dates":final_list}, {"days":daylist})
+
+@app.route("/reimbursemtform", methods=['GET', 'POST'])
+def reimbursemtform():
+    if request.method == 'GET':
+        
+        return render_template('reimbursemtform.html')
+    else:
+        print("POST")
+        try:
+            username = session['username']
+            userid = session['userid']
+            brno = request.form["brno"]
+            brsdate = request.form["brsdate"]
+            bramt = request.form["bramt"]
+            date1 = brsdate.replace("/", "_")
+            filename = username + "_" + brno +"_" + date1
+            print(filename)
+            dreimb = Reimbdata.query.with_entities(Reimbdata.user_id).filter_by(user_id=userid).filter_by(brno=brno).first()
+            if dreimb:
+                flash("This Bill Receipt is already submitted.Check status and enter new one")
+                return redirect(url_for('reimbursemtform'))
+
+            errmsg = validate_file(request, filename)
+            if errmsg != "valid":
+                flash(errmsg)
+                return redirect(url_for('reimbursemtform'))
+
+            file = request.files['file']
+            filename = secure_filename(file.filename)
+            print(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+            new_reimb_data = Reimbdata(
+                    user_id=userid,
+                    brno=brno,
+                    date=brsdate,
+                    amount=bramt,
+                    status=Reimbdata.Pending)
+            db.session.add(new_reimb_data)
+            db.session.commit()
+
+
+            userid = session['userid']
+            bname = request.form["bname"]
+            bifsc =request.form["bifsc"]
+            print(bifsc)
+            bactname =request.form["bactname"]
+            bactnum = request.form["bactnum"]
+            dbinfo = BankInfo.query.with_entities(BankInfo.bankname, BankInfo.ifsc, BankInfo.acctname, BankInfo.acctnum).filter_by(user_id=userid).first()
+            insert = True
+            if dbinfo and dbinfo.bankname == bname and dbinfo.ifsc == bifsc and dbinfo.acctname == bactname and dbinfo.acctnum == bactnum:
+                insert = False
+            if insert == True:
+                new_bank_info = BankInfo(
+                    user_id=userid,
+                    bankname=bname,
+                    ifsc=bifsc,
+                    acctname=bactname,
+                    acctnum=bactnum)
+                db.session.add(new_bank_info)
+                db.session.commit()
+
+
+        except Exception as e:
+            print(str(e))
+    
+        return redirect(url_for('home'))
+
+@app.route("/checkreimbursemntstatus", methods=['GET'])
+def checkreimbursemntstatus():
+    userid = session['userid']
+    binfo = BankInfo.query.with_entities(BankInfo.bankname, BankInfo.ifsc, BankInfo.acctname, BankInfo.acctnum).filter_by(user_id=userid).all()
+    print(binfo)
+    reimbs = Reimbdata.query.with_entities(Reimbdata.brno, Reimbdata.date, Reimbdata.amount, Reimbdata.status).filter_by(user_id=userid).all()
+    print(reimbs)
+    return render_template('checkreimbstatus.html', binfo=binfo, reimbs=reimbs)
+    
+
+def allowed_file(filename):
+    ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
+
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def validate_file(request, filename):
+    errmsg =""
+    try:
+       
+        print(request.url)
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            errmsg = "No file part"
+            # flash('No file part')
+            # return redirect(request.url)
+        file = request.files['file']
+        print(file)
+        
+
+        # if user does not select file, browser also
+        # submit a empty part without filename
+        if file.filename == '':
+            errmsg = "No selected file"
+            # flash('No selected file')
+            # return redirect(request.url)
+        fwext = file.filename.split(".")
+        print(fwext[0])
+        if fwext[0] != filename:
+            errmsg = "please rename file to " + filename + "submit"
+            return errmsg
+
+        if file and allowed_file(file.filename):
+            return "valid"
+    except Exception as e:
+        print(str(e))
+        return str(e)
+    return "supported extensions are gif, txt, pdf, png, jpg"
+
+def upload(request, filename):
+    errmsg =""
+    try:
+        if request.method == 'POST':
+            print("post")
+            print(request.url)
+            # check if the post request has the file part
+            if 'file' not in request.files:
+                errmsg = "No file part"
+                # flash('No file part')
+                # return redirect(request.url)
+            file = request.files['file']
+            print(file)
+            if file != filename:
+                errmsg = "please rename file to " + filename + "submit"
+                return errmsg
+
+            # if user does not select file, browser also
+            # submit a empty part without filename
+            if file.filename == '':
+                errmsg = "o selected file"
+                # flash('No selected file')
+                # return redirect(request.url)
+            if file and allowed_file(file.filename):
+                print("allowed")
+                filename = secure_filename(file.filename)
+                print(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                return errmsg
+    except Exception as e:
+        print(str(e))
+    return  errmsg
 
 if __name__ == '__main__':
     app.debug = True

@@ -124,3 +124,54 @@ class Appointments(db.Model):
         return (em-sm)/15
         
     def __repr__(self):  return "<Appointments(date ='%s', slot='%s' )>" % (self.date, self.slot)
+
+class BankInfo(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    bankname= db.Column(db.String(80))
+    ifsc = db.Column(db.String(80))
+    acctname = db.Column(db.String(80))
+    acctnum    = db.Column(db.String(128))
+  
+
+    def __init__(self, user_id, bankname, ifsc, acctname, acctnum):
+        self.user_id = user_id
+        self.bankname = bankname
+        self.ifsc=ifsc
+        self.acctname = acctname
+        self.acctnum = acctnum
+
+    def __eq__(self, other):
+        return self.bankname == other.bankname and self.ifsc == other.ifsc and self.acctname == other.acctname and self.acctnum == other.acctnum
+    
+
+    def __repr__(self):  return "<BankInfo(user_id ='%s', bankname='%s',,acctname='%s', acctnum='%s,)>" % (
+            self.user_id, self.bankname,  self.acctname, self.acctnum)
+
+class Reimbdata(db.Model):
+
+    Pending = "Pending"
+    Approved = "Approved"
+    Rejected = "Rejected"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    brno = db.Column(db.String(80))
+    date = db.Column(db.String(80))
+    amount = db.Column(db.String(128))
+    status = db.Column(db.String(80))
+    # brfile = db.Column(db.String(255))
+  
+
+    def __init__(self, user_id, brno, date, amount, status):
+        self.user_id = user_id
+        self.brno = brno
+        self.date = date
+        self.amount = amount
+        self.status = status
+    
+
+    def __repr__(self):  return "<Reimbdata(user_id ='%s', brno='%s',,date='%s', amount='%s, status=%s)>" % (
+            self.user_id, self.brno,  self.date, self.amount, self.status)
+
