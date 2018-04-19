@@ -41,6 +41,9 @@ def home():
                 if session['usertype'] == User.Doctor:
                     print("doctor")
                     return render_template('doctor_index.html')
+                if session['usertype'] == User.Admin:
+                    print("Admin")
+                    return redirect(url_for('admin_index'))
             else:
                 return render_template('index.html')
     return render_template('index.html')
@@ -88,11 +91,17 @@ def login():
 @app.route('/register/', methods=['GET', 'POST'])
 def register():
     """Register Form"""
+    
     if request.method == 'POST':
         try:
+            if request.form['username'] == "admin":
+                usertype = User.Admin
+            else:
+                usertype = User.Patient
+
             new_user = User(
                 username=request.form['username'],
-                usertype=User.Patient,
+                usertype=usertype,
                 email=request.form['email'],
                 password=request.form['password'],
                 dayavail='None',
@@ -283,7 +292,6 @@ def reimbursemtform():
             filename = secure_filename(file.filename)
             print(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-
             new_reimb_data = Reimbdata(
                     user_id=userid,
                     brno=brno,
@@ -369,38 +377,45 @@ def validate_file(request, filename):
         return str(e)
     return "supported extensions are gif, txt, pdf, png, jpg"
 
-def upload(request, filename):
-    errmsg =""
-    try:
-        if request.method == 'POST':
-            print("post")
-            print(request.url)
-            # check if the post request has the file part
-            if 'file' not in request.files:
-                errmsg = "No file part"
-                # flash('No file part')
-                # return redirect(request.url)
-            file = request.files['file']
-            print(file)
-            if file != filename:
-                errmsg = "please rename file to " + filename + "submit"
-                return errmsg
+@app.route("/admin_index", methods=['GET', 'POST'])
+def admin_index():
+    if request.method == 'GET':    
+        try:
+            userid = session['userid']
+            # binfo = BankInfo.query.with_entities(BankInfo.bankname, BankInfo.ifsc, BankInfo.acctname, BankInfo.acctnum).filter_by(user_id=userid).all()
+            # print(binfo)
+            reimbs = Reimbdata.query.filter_by(status=Reimbdata.Pending).all()
 
-            # if user does not select file, browser also
-            # submit a empty part without filename
-            if file.filename == '':
-                errmsg = "o selected file"
-                # flash('No selected file')
-                # return redirect(request.url)
-            if file and allowed_file(file.filename):
-                print("allowed")
-                filename = secure_filename(file.filename)
-                print(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-                return errmsg
-    except Exception as e:
-        print(str(e))
-    return  errmsg
+            print("admin_index")
+            # print(reimbs.user.username)
+            # print(reimbs)
+            print(reimbs)
+            return render_template('admin_index.html', reimbs=reimbs)
+        except Exception as e:
+            print(str(e))
+            return render_template('admin_index.html')
+    else:
+        print("POST")
+        statusv = Reimbdata.Pending
+        selected_rows = request.form.getlist("rowcheck")
+        btnVal1 = request.form.get('Approve')
+        print(btnVal1)
+        if btnVal1:
+            statusv = Reimbdata.Approved
+        else:
+            btnVal1 = request.form.get('Reject')
+            if btnVal1:
+                statusv = Reimbdata.Rejected
+
+      
+        # print(btnVal1)
+        print(selected_rows)
+        for id1 in selected_rows:
+            print(id1)
+            Reimbdata.query.with_entities(Reimbdata.id).filter_by(id=id1).update(dict(status=statusv))
+            db.session.commit()
+        return redirect(url_for('admin_index'))
+
 
 if __name__ == '__main__':
     app.debug = True

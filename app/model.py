@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from app import db
 import bcrypt
 import os
+from sqlalchemy.orm import backref
 
 
 class User(db.Model):
@@ -20,6 +21,9 @@ class User(db.Model):
     starttime = db.Column(db.String(80))
     endtime = db.Column(db.String(80))
     hospital = db.Column(db.String(255))
+    receipts = db.relationship('Reimbdata', backref='submitter', lazy='dynamic')
+
+
 
     def __init__(self, username, usertype, email, password, dayavail, starttime, endtime, hospital):
         print(usertype)
@@ -157,10 +161,12 @@ class Reimbdata(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    # create_user = db.relationship("User", foreign_keys=user_id)
     brno = db.Column(db.String(80))
     date = db.Column(db.String(80))
     amount = db.Column(db.String(128))
     status = db.Column(db.String(80))
+
     # brfile = db.Column(db.String(255))
   
 

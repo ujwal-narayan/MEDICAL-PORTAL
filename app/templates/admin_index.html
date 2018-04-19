@@ -1,0 +1,81 @@
+
+
+
+{% extends "base.html" %}
+{% block content %}
+
+
+
+{% if session['logged_in'] %}
+<form method='POST' action="/admin_index">
+<div class="container  justify-content-center">
+<!-- <div class="table-responsive-xl">
+  <table class="table table-striped">
+       <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Bank name</th>
+      <th scope="col">IFSC</th>
+      <th scope="col">Account holder name</th>
+      <th scope="col">Account number</th>
+    </tr>
+      </thead>
+      <tbody>
+        {% for bank in binfo %}
+    <tr>
+      <th scope="row">{{ loop.index }}</th>
+      <td>{{ bank.bankname }}</td>
+      <td>{{ bank.ifsc }}</td>
+      <td>{{ bank.acctname }}</td>
+      <td>{{ bank.acctnum }}</td>
+    </tr>
+    {% endfor %}
+      </tbody>
+     </table>
+</div> -->
+   <!--  <br> -->
+    <div class="table-responsive-xl">
+
+    <table class="table table-striped">
+        <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">User</th>
+      <th scope="col">Bill Reciept/Cash Memo No</th>
+      <th scope="col">Date</th>
+      <th scope="col">Amount</th>
+      <th scope="col">Status</th>
+      <th scope="col"></th>
+      
+    </tr>
+        </thead>
+        <tbody>
+   {% for x in reimbs %}
+    <tr>
+      <th scope="row">{{ loop.index }}</th>
+      <td>{{ x.submitter.username}}</td>
+      <td>{{ x.brno }}</td>
+      <td>{{ x.date }}</td>
+      <td>{{ x.amount }}</td>
+      <td>{{ x.status }}</td>
+      <td>  <input type="checkbox" name="rowcheck"  value={{x.id}}>
+      </td>
+      
+      
+     
+    </tr>
+    {% endfor %}
+        </tbody>
+     </table>
+     
+    </div>
+<input type="submit" action="submit" value="Approve" name ="Approve"> 
+<input type="submit" action="submit" value="Reject"  name="Reject">
+
+</form>
+
+
+
+{% endif %}
+
+{% endblock %}
