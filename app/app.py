@@ -166,9 +166,9 @@ def finddoctor():
     return render_template('finddoctor.html')
 
 
-@app.route("/calendar")
-def calendar():
-    return render_template('calendar.html')
+# @app.route("/calendar")
+# def calendar():
+#     return render_template('calendar.html')
 
 
 @app.route("/bookapt", methods=['GET', 'POST'])
@@ -265,8 +265,11 @@ def _get_dates():
 @app.route("/reimbursemtform", methods=['GET', 'POST'])
 def reimbursemtform():
     if request.method == 'GET':
-        
-        return render_template('reimbursemtform.html')
+         username = session['username']
+         userid = session['userid']
+         dbinfo = BankInfo.query.with_entities(BankInfo.bankname, BankInfo.ifsc, BankInfo.acctname, BankInfo.acctnum).filter_by(user_id=userid).first()
+         print(dbinfo)
+         return render_template('reimbursemtform.html', dbinfo=dbinfo)
     else:
         print("POST")
         try:
@@ -310,9 +313,10 @@ def reimbursemtform():
             bactnum = request.form["bactnum"]
             dbinfo = BankInfo.query.with_entities(BankInfo.bankname, BankInfo.ifsc, BankInfo.acctname, BankInfo.acctnum).filter_by(user_id=userid).first()
             insert = True
-            if dbinfo and dbinfo.bankname == bname and dbinfo.ifsc == bifsc and dbinfo.acctname == bactname and dbinfo.acctnum == bactnum:
-                insert = False
-            if insert == True:
+            if dbinfo:
+                BankInfo.query.filter_by(user_id=userid).update(dict(bankname=bname, ifsc=bifsc, acctname=bactname, acctnum=bactnum))
+                db.session.commit()
+            else:
                 new_bank_info = BankInfo(
                     user_id=userid,
                     bankname=bname,
@@ -331,7 +335,7 @@ def reimbursemtform():
 @app.route("/checkreimbursemntstatus", methods=['GET'])
 def checkreimbursemntstatus():
     userid = session['userid']
-    binfo = BankInfo.query.with_entities(BankInfo.bankname, BankInfo.ifsc, BankInfo.acctname, BankInfo.acctnum).filter_by(user_id=userid).all()
+    binfo = BankInfo.query.with_entities(BankInfo.bankname, BankInfo.ifsc, BankInfo.acctname, BankInfo.acctnum).filter_by(user_id=userid).first()
     print(binfo)
     reimbs = Reimbdata.query.with_entities(Reimbdata.brno, Reimbdata.date, Reimbdata.amount, Reimbdata.status).filter_by(user_id=userid).all()
     print(reimbs)

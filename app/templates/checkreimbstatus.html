@@ -6,7 +6,6 @@
   <table class="table table-striped">
        <thead>
     <tr>
-      <th scope="col">#</th>
       <th scope="col">Bank name</th>
       <th scope="col">IFSC</th>
       <th scope="col">Account holder name</th>
@@ -14,15 +13,14 @@
     </tr>
       </thead>
       <tbody>
-        {% for bank in binfo %}
+        
     <tr>
-      <th scope="row">{{ loop.index }}</th>
-      <td>{{ bank.bankname }}</td>
-      <td>{{ bank.ifsc }}</td>
-      <td>{{ bank.acctname }}</td>
-      <td>{{ bank.acctnum }}</td>
+      <td>{{ binfo.bankname }}</td>
+      <td>{{ binfo.ifsc }}</td>
+      <td>{{ binfo.acctname }}</td>
+      <td>{{ binfo.acctnum }}</td>
     </tr>
-    {% endfor %}
+   
       </tbody>
      </table>
 </div>
