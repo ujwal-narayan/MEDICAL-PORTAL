@@ -1,0 +1,92 @@
+
+
+
+{% extends "base.html" %}
+{% block content %}
+
+
+
+{% if session['logged_in'] %}
+<form method='POST' action="/admin_user_search_update">
+<div class="container  justify-content-center">
+<!-- <div class="table-responsive-xl">
+  <table class="table table-striped">
+       <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Bank name</th>
+      <th scope="col">IFSC</th>
+      <th scope="col">Account holder name</th>
+      <th scope="col">Account number</th>
+    </tr>
+      </thead>
+      <tbody>
+        {% for bank in binfo %}
+    <tr>
+      <th scope="row">{{ loop.index }}</th>
+      <td>{{ bank.bankname }}</td>
+      <td>{{ bank.ifsc }}</td>
+      <td>{{ bank.acctname }}</td>
+      <td>{{ bank.acctnum }}</td>
+    </tr>
+    {% endfor %}
+      </tbody>
+     </table>
+</div> -->
+   <!--  <br> -->
+    <div class="table-responsive-xl">
+
+    <table class="table table-striped">
+        <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">User</th>
+      <th scope="col">Bill Reciept/Cash Memo No</th>
+      <th scope="col">Date</th>
+      <th scope="col">Amount</th>
+      <th scope="col">Status</th>
+      <th scope="col"></th>
+      
+    </tr>
+        </thead>
+        <tbody>
+   {% for x in reimbs %}
+    
+      
+      
+      {% for y in x.receipts %}
+      <tr>
+      <th scope="row">{{ loop.index }}</th>
+      <td>{{ x.user}}</td>
+      <td>{{ y.brno}}</td>
+      <td>{{ y.date }}</td>
+      <td>{{ y.amount }}</td>
+      <td>{{ y.status }}</td>
+      {% if y.status == "Pending" %}
+      <td>  <input type="checkbox" class="form-check-input"  name="rowcheck"  value={{y.id}}>
+
+      </td>
+      {% else %}
+      <td>  <input type="checkbox" class="form-check-input"  name="rowcheck"  value={{y.id}} disabled>
+
+      </td>
+      {% endif %}
+      
+     
+    </tr>
+     {% endfor %}
+    {% endfor %}
+        </tbody>
+     </table>
+     
+    </div>
+<input type="submit" action="submit" value="Approve" name ="Approve"> 
+<input type="submit" action="submit" value="Reject"  name="Reject">
+
+</form>
+
+
+
+{% endif %}
+
+{% endblock %}

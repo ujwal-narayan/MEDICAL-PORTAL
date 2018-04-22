@@ -420,6 +420,59 @@ def admin_index():
             db.session.commit()
         return redirect(url_for('admin_index'))
 
+@app.route("/admin_user_search", methods=['POST'])
+def admin_user_search():    
+    print("admin_user_search")
+    username = session['username']
+    userid = session['userid']
+    if username != "admin":
+        flash("not allowed")
+    search_string = "%" + request.form["patientname"] +"%"
+    print(search_string)
+    session['search_string'] = search_string
+    users = User.query.filter(User.username.like(search_string)).filter_by(usertype=User.Patient).all()
+    print(users)
+    reimbs = []
+    for user in users:
+        data = user.receipts.all()
+        reimbs.append(dict(user=user.username, receipts=data))
+
+    print(reimbs)
+    print("end_admin_user_search")
+    return render_template('admin_search.html', reimbs=reimbs)
+
+@app.route("/admin_user_search_update", methods=['POST'])
+def admin_user_search_update():    
+    print("admin_user_search_update")
+    print("POST")
+    statusv = Reimbdata.Pending
+    selected_rows = request.form.getlist("rowcheck")
+    btnVal1 = request.form.get('Approve')
+    print(btnVal1)
+    if btnVal1:
+        statusv = Reimbdata.Approved
+    else:
+        btnVal1 = request.form.get('Reject')
+        if btnVal1:
+            statusv = Reimbdata.Rejected
+    # print(btnVal1)
+    print(selected_rows)
+    for id1 in selected_rows:
+        print(id1)
+        Reimbdata.query.with_entities(Reimbdata.id).filter_by(id=id1).update(dict(status=statusv))
+        db.session.commit()
+
+    search_string = session['search_string']
+    users = User.query.filter(User.username.like(search_string)).all()
+    print(users)
+    reimbs = []
+    for user in users:
+        data = user.receipts.all()
+        reimbs.append(dict(user=user.username, receipts=data))
+
+    print(reimbs)
+    print("end_admin_user_search_udate")
+    return render_template('admin_search.html', reimbs=reimbs)
 
 if __name__ == '__main__':
     app.debug = True
