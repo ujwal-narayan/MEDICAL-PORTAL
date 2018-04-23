@@ -51,7 +51,7 @@
 
 <script>
   function bapt() {
-          window.location.href = '{{ url_for('bookapt') }}'
+          window.location.href = '{{ url_for('bookapt', doctorname="none") }}'
   }
   function fdoctor() {
          window.location.href = '{{ url_for('finddoctor') }}'

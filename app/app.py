@@ -171,41 +171,58 @@ def finddoctor():
 #     return render_template('calendar.html')
 
 
-@app.route("/bookapt", methods=['GET', 'POST'])
-def bookapt():
-    if request.method == 'GET':
-        doclist = User.query.with_entities(User.id, User.username, User.dayavail, User.starttime, User.endtime).filter_by(usertype=User.Doctor).all()
-        docid = doclist[-1].id
-        # print("docid")
-        # print(docid)
-        # print("dayavail")
-        daylist = doclist[-1].dayavail
-        print(daylist)
-        
-        return render_template('bookapt.html',  docs=doclist,  daylist=daylist)
-    else:
-        print("POST")
-        aptdate = request.form['aptdate']
-        apttime = request.form['aptslot']
-        aptdoc = request.form['aptdoc']
-        username = session['username']
-        patient = User.query.with_entities(User.id).filter_by(username=username).first()
-        doc = User.query.with_entities(User.id).filter_by(username=aptdoc).first()
-        print(patient.id)
-        print(doc.id)
-        print(aptdate)
-        print(apttime)
-        print(aptdoc)
-        new_apt = Appointments(
-                date=aptdate,
-                slot=apttime,
-                patient_id=patient.id,
-                doctor_id=doc.id)
-        db.session.add(new_apt)
-        db.session.commit()
- 
-        flash('Your appointment is added, you will get confiramtion email shortly')
-        return redirect(url_for('bookapt'))
+@app.route("/bookapt/<doctorname>", methods=['GET', 'POST'])
+def bookapt(doctorname):
+    try:
+        if request.method == 'GET':
+            print(doctorname)
+            if doctorname != "none":
+                print("doctorname")              
+                doclist = User.query.with_entities(User.id, User.username, User.dayavail, User.starttime, User.endtime).filter_by(username=doctorname).all()
+                docid = doclist[-1].id
+                # print("docid")
+                # print(docid)
+                # print("dayavail")
+                daylist = doclist[-1].dayavail
+                print(daylist)
+            else:
+                doclist = User.query.with_entities(User.id, User.username, User.dayavail, User.starttime, User.endtime).filter_by(usertype=User.Doctor).all()
+                print(doclist)
+                docid = doclist[-1].id
+                doctorname=doclist[-1].username
+                # print("docid")
+                # print(docid)
+                # print("dayavail")
+                daylist = doclist[-1].dayavail
+                print(daylist)
+            return render_template('bookapt.html',  docs=doclist,  daylist=daylist)
+        else:
+            print("POST")
+            aptdate = request.form['aptdate']
+            apttime = request.form['aptslot']
+            aptdoc = request.form['aptdoc']
+            username = session['username']
+            patient = User.query.with_entities(User.id).filter_by(username=username).first()
+            doc = User.query.with_entities(User.id).filter_by(username=aptdoc).first()
+            print(patient.id)
+            print(doc.id)
+            print(aptdate)
+            print(apttime)
+            print(aptdoc)
+            new_apt = Appointments(
+                    date=aptdate,
+                    slot=apttime,
+                    patient_id=patient.id,
+                    doctor_id=doc.id)
+            db.session.add(new_apt)
+            db.session.commit()
+            message = "Your appointment with " + aptdoc + " on " + aptdate + " at " + apttime + " is requested.\n" + " You will get confirmation email shortly" 
+     
+            flash(message)
+            return redirect(url_for('bookapt', doctorname="none"))
+    except Exception as e:
+        print(str(e))
+        return render_template('bookapt.html',  docs=[],  daylist=[])
 
 @app.route('/_get_slots/')
 def _get_slots():

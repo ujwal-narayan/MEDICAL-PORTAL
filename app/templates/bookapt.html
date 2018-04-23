@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
    
-<form action="/bookapt" method="POST">
+<form action="/bookapt/doctorname" method="POST">
     <div class="container">
         <div class="row">
             <div class='col-sm-4'>
@@ -163,8 +163,12 @@
         // event listener to doctor dropdown change
        $('#iddoctor3').on('change', function() {
             updateDate();
+            $('#datetimepicker3').trigger("dp.change");
+            // updateSlots();
+
         });
        $('#datetimepicker3').datetimepicker().on("dp.change", function(ev){
+            // alert("slot update")
             updateSlots();
             // $('#iddate').change();
         });
