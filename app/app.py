@@ -6,13 +6,14 @@ from sqlalchemy import func
 from flask_migrate import Migrate
 from flask import jsonify
 from werkzeug import secure_filename
+from flask_mail import Mail, Message
 
 
 import bcrypt
 import os
 import datetime
 
-from app import app, model, db
+from app import app, model, db, mail
 from app.model import User, Appointments, BankInfo, Reimbdata
 
 # app = Flask(__name__)
@@ -105,6 +106,7 @@ def register():
                 email=request.form['email'],
                 password=request.form['password'],
                 dayavail='None',
+                day_avail_s='None',
                 starttime='None',
                 endtime='None',
                 hospital='None')
@@ -137,6 +139,7 @@ def register_doctor():
                 email=request.form['email'],
                 password=request.form['password'],
                 dayavail=avails,
+                day_avail_s=day_avail_list,
                 starttime=request.form['timestart'],
                 endtime=request.form['timeend'],
                 hospital=request.form['hospitalname'])
@@ -161,9 +164,26 @@ def logout():
     return redirect(url_for('home'))
 
 
-@app.route("/finddoctor")
+@app.route("/finddoctor", methods=['GET', 'POST'])
 def finddoctor():
-    return render_template('finddoctor.html')
+
+    if request.method == 'GET':
+        doctors = User.query.with_entities(User.id, User.username, User.hospital, User.email,User.dayavail, User.day_avail_s, User.starttime, User.endtime).filter_by(usertype=User.Doctor).all()
+        print(doctors)
+        # for doc in doctors:
+        #     print(doc.day_avail_s)
+        #     print(doc)
+        #     print(doc.id)
+        #     print(doc.username)
+        #     if doc.day_avail_s == None:
+        #         print("update")
+        #         id1 = doc.id
+        #         print(id1)
+        #         print(doc)
+        #         User.query.filter_by(id=id1).update(dict(day_avail_s="Weekdays, Sun"))
+        #         db.session.commit()
+
+        return render_template('finddoctor.html', doctors=doctors)
 
 
 # @app.route("/calendar")
@@ -202,7 +222,7 @@ def bookapt(doctorname):
             apttime = request.form['aptslot']
             aptdoc = request.form['aptdoc']
             username = session['username']
-            patient = User.query.with_entities(User.id).filter_by(username=username).first()
+            patient = User.query.with_entities(User.id, User.email).filter_by(username=username).first()
             doc = User.query.with_entities(User.id).filter_by(username=aptdoc).first()
             print(patient.id)
             print(doc.id)
@@ -216,13 +236,17 @@ def bookapt(doctorname):
                     doctor_id=doc.id)
             db.session.add(new_apt)
             db.session.commit()
-            message = "Your appointment with " + aptdoc + " on " + aptdate + " at " + apttime + " is requested.\n" + " You will get confirmation email shortly" 
-     
+            message = "Your appointment with " + aptdoc + " on " + aptdate + " at " + apttime + " is confirmed.\n" 
+            msg = Message('Hello '+ username, sender = 'medicalportalprojecta@gmail.com', recipients = [patient.email])
+            msg.body = message
+            mail.send(msg)
             flash(message)
             return redirect(url_for('bookapt', doctorname="none"))
     except Exception as e:
         print(str(e))
         return render_template('bookapt.html',  docs=[],  daylist=[])
+
+
 
 @app.route('/_get_slots/')
 def _get_slots():
