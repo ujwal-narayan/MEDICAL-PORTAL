@@ -18,6 +18,7 @@ class User(db.Model):
     password = db.Column(db.String(80))
     email    = db.Column(db.String(128))
     dayavail = db.Column(db.String(128))
+    day_avail_s = db.Column(db.String(128))
     starttime = db.Column(db.String(80))
     endtime = db.Column(db.String(80))
     hospital = db.Column(db.String(255))
@@ -25,7 +26,7 @@ class User(db.Model):
 
 
 
-    def __init__(self, username, usertype, email, password, dayavail, starttime, endtime, hospital):
+    def __init__(self, username, usertype, email, password, dayavail, day_avail_s, starttime, endtime, hospital):
         print(usertype)
         self.username = username
         self.usertype = usertype
@@ -33,6 +34,7 @@ class User(db.Model):
         self.password = bcrypt.hashpw(
             password.encode('utf8'), bcrypt.gensalt())
         self.dayavail = dayavail
+        self.day_avail_s = day_avail_s
         self.starttime = starttime
         self.endtime = endtime
         self.hospital = hospital

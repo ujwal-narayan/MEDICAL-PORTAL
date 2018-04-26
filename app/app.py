@@ -9,6 +9,7 @@ from werkzeug import secure_filename
 from flask_mail import Mail, Message
 
 
+
 import bcrypt
 import os
 import datetime
@@ -40,8 +41,27 @@ def home():
             if 'usertype' in session:
                 print("usertype in sessiom")
                 if session['usertype'] == User.Doctor:
-                    print("doctor")
-                    return render_template('doctor_index.html')
+                    events = []
+                    docid = session['userid']
+                    today = datetime.date.today()
+                    week_after = today + datetime.timedelta(days=7)
+                    date1 = today.strftime("%m/%d/%Y")
+                    date2 = week_after.strftime("%m/%d/%Y")
+                    docInfo =User.query.with_entities(User.starttime, User.endtime).filter_by(id=docid).first()
+                    starttime = Appointments.AMPM_to_24(docInfo.starttime)+":00"
+                    endtime = Appointments.AMPM_to_24(docInfo.endtime)+":00"
+                    evlist =  Appointments.query.with_entities(Appointments.patient_id, Appointments.date, Appointments.slot).filter_by(doctor_id=docid).filter(Appointments.date.between(date1, date2)).all()
+                    print(evlist)
+                    for ev in evlist:
+                        dt = ev.date.replace("/", "-")
+                        sdt = dt + " " + ev.slot + ":00"
+                        edt = datetime.datetime.strptime(sdt, "%m-%d-%Y %H:%M:%S")      
+                        edt = edt + datetime.timedelta(minutes=15)
+                        sdt = edt - datetime.timedelta(minutes=15)   
+                        sdt =sdt.strftime("%Y-%m-%dT%H:%M:%S")
+                        edt =edt.strftime("%Y-%m-%dT%H:%M:%S")
+                        events.append(dict(title=('Patient'+str(ev.patient_id)), start=sdt, end=edt))
+                    return render_template('doctor_index.html', eventlist=events, mintime=starttime, maxtime=endtime)
                 if session['usertype'] == User.Admin:
                     print("Admin")
                     return redirect(url_for('admin_index'))
@@ -170,18 +190,6 @@ def finddoctor():
     if request.method == 'GET':
         doctors = User.query.with_entities(User.id, User.username, User.hospital, User.email,User.dayavail, User.day_avail_s, User.starttime, User.endtime).filter_by(usertype=User.Doctor).all()
         print(doctors)
-        # for doc in doctors:
-        #     print(doc.day_avail_s)
-        #     print(doc)
-        #     print(doc.id)
-        #     print(doc.username)
-        #     if doc.day_avail_s == None:
-        #         print("update")
-        #         id1 = doc.id
-        #         print(id1)
-        #         print(doc)
-        #         User.query.filter_by(id=id1).update(dict(day_avail_s="Weekdays, Sun"))
-        #         db.session.commit()
 
         return render_template('finddoctor.html', doctors=doctors)
 
