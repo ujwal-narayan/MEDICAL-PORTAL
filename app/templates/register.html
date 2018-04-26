@@ -1,7 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
-{% if session['logged_in'] %}
-<p>Oh no Dont show page</p>
+{% if (session['logged_in']) and (session['usertype'] != 2) %}
+  <p>Oh no Dont show page</p>
+
 {% else %}
 <br>
 <h2>Register</h2>

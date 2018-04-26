@@ -1,0 +1,61 @@
+
+
+
+{% extends "base.html" %}
+{% block content %}
+
+
+
+{% if session['logged_in'] %}
+<form method='POST' action="/admin_health">
+<div class="container  justify-content-center">
+
+    <div class="table-responsive-xl">
+
+    <table class="table table-striped">
+        <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">User</th>
+      <th scope="col">Date</th>
+      <th scope="col">BP Systolic</th>
+      <th scope="col">BP Diastolic</th>
+      <th scope="col">Heartbeat</th>
+      <th scope="col">Height(cm)</th>
+      <th scope="col">Weight(kg)</th>
+      <th scope="col">Medicines Allergic To</th>
+      
+    </tr>
+        </thead>
+        <tbody>
+   {% for x in hrecords %}
+    <tr>
+      <th scope="row">{{ loop.index }}</th>
+      <td>{{ x.patient.username}}</td>
+      <td>{{ x.date }}</td>
+      <td>{{ x.bpsys }}</td>
+      <td>{{ x.bpdia }}</td>
+      <td>{{ x.heartbeat }}</td>
+      <td>{{ x.height }}</td>
+      <td>{{ x.weight }}</td>
+      <td>{{ x.allergym }}</td>
+      <td>  <input type="checkbox" name="rowcheck"  value={{x.id}}>
+      </td>
+      
+      
+     
+    </tr>
+    {% endfor %}
+        </tbody>
+     </table>
+     
+    </div>
+<input type="submit" action="submit" value="Generate Report" name ="gen_report"> 
+
+</form>
+
+
+
+{% endif %}
+
+{% endblock %}

@@ -14,7 +14,7 @@ import os
 import datetime
 
 from app import app, model, db, mail
-from app.model import User, Appointments, BankInfo, Reimbdata
+from app.model import User, Appointments, BankInfo, Reimbdata, PatintHealthRecord
 
 # app = Flask(__name__)
 # app.config['SECRET_KEY'] = os.environ.get(
@@ -44,7 +44,7 @@ def home():
                     return render_template('doctor_index.html')
                 if session['usertype'] == User.Admin:
                     print("Admin")
-                    return redirect(url_for('admin_index'))
+                    return redirect(url_for('admin_reimb'))
             else:
                 return render_template('index.html')
     return render_template('index.html')
@@ -106,7 +106,7 @@ def register():
                 email=request.form['email'],
                 password=request.form['password'],
                 dayavail='None',
-                day_avail_s='None',
+                # day_avail_s='None',
                 starttime='None',
                 endtime='None',
                 hospital='None')
@@ -139,7 +139,7 @@ def register_doctor():
                 email=request.form['email'],
                 password=request.form['password'],
                 dayavail=avails,
-                day_avail_s=day_avail_list,
+                # day_avail_s=day_avail_list,
                 starttime=request.form['timestart'],
                 endtime=request.form['timeend'],
                 hospital=request.form['hospitalname'])
@@ -168,8 +168,8 @@ def logout():
 def finddoctor():
 
     if request.method == 'GET':
-        doctors = User.query.with_entities(User.id, User.username, User.hospital, User.email,User.dayavail, User.day_avail_s, User.starttime, User.endtime).filter_by(usertype=User.Doctor).all()
-        print(doctors)
+    #     doctors = User.query.with_entities(User.id, User.username, User.hospital, User.email,User.dayavail, User.day_avail_s, User.starttime, User.endtime).filter_by(usertype=User.Doctor).all()
+    #     print(doctors)
         # for doc in doctors:
         #     print(doc.day_avail_s)
         #     print(doc)
@@ -183,7 +183,7 @@ def finddoctor():
         #         User.query.filter_by(id=id1).update(dict(day_avail_s="Weekdays, Sun"))
         #         db.session.commit()
 
-        return render_template('finddoctor.html', doctors=doctors)
+        return render_template('finddoctor.html')
 
 
 # @app.route("/calendar")
@@ -422,11 +422,12 @@ def validate_file(request, filename):
         return str(e)
     return "supported extensions are gif, txt, pdf, png, jpg"
 
-@app.route("/admin_index", methods=['GET', 'POST'])
-def admin_index():
+@app.route("/admin_reimb", methods=['GET', 'POST'])
+def admin_reimb():
     if request.method == 'GET':    
         try:
             userid = session['userid']
+            session['currentdropdownpage'] = 'admin_reimb'
             # binfo = BankInfo.query.with_entities(BankInfo.bankname, BankInfo.ifsc, BankInfo.acctname, BankInfo.acctnum).filter_by(user_id=userid).all()
             # print(binfo)
             reimbs = Reimbdata.query.filter_by(status=Reimbdata.Pending).all()
@@ -459,11 +460,12 @@ def admin_index():
             print(id1)
             Reimbdata.query.with_entities(Reimbdata.id).filter_by(id=id1).update(dict(status=statusv))
             db.session.commit()
-        return redirect(url_for('admin_index'))
+        return redirect(url_for('admin_reimb'))
 
 @app.route("/admin_user_search", methods=['POST'])
 def admin_user_search():    
     print("admin_user_search")
+    
     username = session['username']
     userid = session['userid']
     if username != "admin":
@@ -471,16 +473,27 @@ def admin_user_search():
     search_string = "%" + request.form["patientname"] +"%"
     print(search_string)
     session['search_string'] = search_string
+
     users = User.query.filter(User.username.like(search_string)).filter_by(usertype=User.Patient).all()
     print(users)
-    reimbs = []
-    for user in users:
-        data = user.receipts.all()
-        reimbs.append(dict(user=user.username, receipts=data))
+    if session['currentdropdownpage'] == 'admin_reimb':
+        reimbs = []
+        for user in users:
+            data = user.receipts.all()
+            reimbs.append(dict(user=user.username, receipts=data))
 
-    print(reimbs)
-    print("end_admin_user_search")
-    return render_template('admin_search.html', reimbs=reimbs)
+        print(reimbs)
+        print("end_admin_user_search")
+        return render_template('admin_search.html', reimbs=reimbs)
+    else:
+        hrecords = []
+        for user in users:
+            data = user.hrecords.all()
+            hrecords.append(dict(user=user.username, hrecords=data))
+
+        print(hrecords)
+        print("end_admin_user_search")
+        return render_template('admin_search_health.html', hrecords=hrecords)
 
 @app.route("/admin_user_search_update", methods=['POST'])
 def admin_user_search_update():    
@@ -500,7 +513,7 @@ def admin_user_search_update():
     print(selected_rows)
     for id1 in selected_rows:
         print(id1)
-        Reimbdata.query.with_entities(Reimbdata.id).filter_by(id=id1).update(dict(status=statusv))
+        Reimbdata.query.with_entities(Reimbdata.id).filter_by(user_id=id1).update(dict(status=statusv))
         db.session.commit()
 
     search_string = session['search_string']
@@ -514,6 +527,95 @@ def admin_user_search_update():
     print(reimbs)
     print("end_admin_user_search_udate")
     return render_template('admin_search.html', reimbs=reimbs)
+@app.route("/admin_user_health_search_update", methods=['POST'])
+def admin_user_health_search_update():    
+    print("admin_user_health_search_update")
+    print("POST")
+    selected_rows = request.form.getlist("rowcheck")
+    print(selected_rows)
+    for id1 in selected_rows:
+        print(id1)
+        records = PatintHealthRecord.query.filter_by(user_id=id1)
+        print(records)
+
+    search_string = session['search_string']
+
+    users = User.query.filter(User.username.like(search_string)).all()
+    print(users)
+    hrecords = []
+    for user in users:
+        data = user.hrecords.all()
+        hrecords.append(dict(user=user.username, hrecords=data))
+
+    print(hrecords)
+    print("end_admin_user_health_search_update")
+    return render_template('admin_search_health.html', hrecords=hrecords)
+@app.route("/record_patient_vitals", methods=['GET', 'POST'])
+def record_patient_vitals(): 
+    if request.method == 'GET':    
+        return render_template('record_patient_vitals.html')
+    else:
+        print("record_patient_vitals POST")
+        patientname = request.form['patientname']
+        user = User.query.with_entities(User.id).filter_by(username=patientname).first()
+        print(user)
+        # print(user.id)
+        if user == None:
+            flash("Patient Not found in Database.Please Register")
+            return redirect(url_for('register'))
+
+        bps = request.form['bpsystolic']
+        bpd = request.form['bpdiastolic']
+        hb = request.form['heartbeat']
+        height = request.form['height']
+        weight = request.form['weight']
+        mallergic = request.form['AllergicMed']
+        date1 = datetime.datetime.today().strftime("%m/%d/%Y")
+        new_patient_hr = PatintHealthRecord(
+                    userid=user.id,
+                    date=date1,
+                    allergym=mallergic,
+                    bpsys=bps,
+                    bpdia=bpd,
+                    heartbeat=hb,
+                    height=height,
+                    weight=weight)
+        db.session.add(new_patient_hr)
+        db.session.commit()
+        listp = [patientname, bps, bpd, hb, height, weight, mallergic]
+        print(listp)
+        session['search_string']= patientname
+        print( session['search_string'])
+        return redirect(url_for('admin_health'))
+
+@app.route("/admin_health", methods=['GET', 'POST'])
+def admin_health(): 
+    if request.method == 'GET':    
+        try:
+            # userid = session['userid']
+            session['currentdropdownpage'] = 'admin_health'
+            date1 = datetime.datetime.today().strftime("%m/%d/%Y")
+            hrecords = PatintHealthRecord.query.filter_by(date=date1).all()
+
+            print("admin_health")
+            # print(reimbs.user.username)
+            # print(reimbs)
+            print(hrecords)
+            return render_template('admin_health.html', hrecords=hrecords)
+        except Exception as e:
+            print(str(e))
+            return render_template('admin_health.html')
+    else:
+        print("POST")
+        selected_rows = request.form.getlist("rowcheck")
+        print(selected_rows)
+        for id1 in selected_rows:
+            print(id1)
+            date1 = datetime.datetime.today().strftime("%m/%d/%Y")
+            userrep = PatintHealthRecord.query.filter_by(date=date1).filter_by(user_id=id1).all()
+            print(userrep)
+        return redirect(url_for('admin_health'))
+   
 
 if __name__ == '__main__':
     app.debug = True

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container">
+    <div class="row">
+    <div class='col-sm-4'>
+         <h2>Record Patient Vitals</h2>
+     </div>
+    </div>
+    <div class="row ">
+    <div class="col-sm-4">
+  <!--   <div class="card">
+    <div class="card-body">     -->
+    <form action="/record_patient_vitals" method="POST">
+   <div class="form-group">
+        <label for="iduser">Patient Name:</label> 
+         <input type="username" name="patientname" class="form-control" id='iduser'/>
+               <label for="idbps">Systolic BP:</label>
+               <input type='number' min='0' class="form-control" name="bpsystolic" id="idbps"/>
+                <label for="idbpd">Diastolic BP:</label>
+               <input type='number' min='0' class="form-control" name="bpdiastolic" id="idbpd"/>
+
+              <label for="idhb">HeartBeat:</label>
+              
+             <input type='number' min='0' class="form-control" name="heartbeat"  id="idhb")/>
+               <label for="idh">Height(cm):</label>
+        
+              <input type='number' min=0, step='any' class="form-control" name="height"  id="idh")/>
+              <label for="idw">Weight(kg):</label>
+               <input type='number' step='any' class="form-control" name="weight"  id="idw")/>
+         
+               <label for="ida">Medicines Allergic to:</label>
+      
+               <input type='text' class="form-control" name="AllergicMed"  id="ida")/>
+              <br>
+              <input type='submit' class="form-control" name="vsubmit" value="Submit" />
+       </div>
+
+</form>
+<!-- </div>
+</div> -->
+</div>
+</div>
+</div>
+{% endblock %}

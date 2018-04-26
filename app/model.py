@@ -22,6 +22,7 @@ class User(db.Model):
     endtime = db.Column(db.String(80))
     hospital = db.Column(db.String(255))
     receipts = db.relationship('Reimbdata', backref='submitter', lazy='dynamic')
+    hrecords = db.relationship('PatintHealthRecord', backref='patient', lazy='dynamic')
 
 
 
@@ -181,3 +182,31 @@ class Reimbdata(db.Model):
     def __repr__(self):  return "<Reimbdata(user_id ='%s', brno='%s',,date='%s', amount='%s, status=%s)>" % (
             self.user_id, self.brno,  self.date, self.amount, self.status)
 
+class PatintHealthRecord(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    date = db.Column(db.String(80))
+    allergym = db.Column(db.String(255))
+    bpsys = db.Column(db.Integer)
+    bpdia = db.Column(db.Integer)
+    heartbeat = db.Column(db.Integer)
+    height = db.Column(db.Integer)
+    weight = db.Column(db.Integer)
+
+
+
+    def __init__(self, userid, date, allergym, bpsys, bpdia, heartbeat, height, weight):
+        self.user_id = userid
+        self.date = date
+        self.allergym = allergym
+        self.bpsys = bpsys
+        self.bpdia = bpdia
+        self.heartbeat = heartbeat
+        self.height = height
+        self.weight = weight
+
+
+    def __repr__(self):  return "<PatintHealthRecord(userid ='%s', date='%s',,allergym='%s', bpsys='%s', bpdia='%s', heartbeat='%s',)>" % (
+            self.user_id, self.date,  self.allergym, self.bpsys,
+            self.bpdia, self.heartbeat)
