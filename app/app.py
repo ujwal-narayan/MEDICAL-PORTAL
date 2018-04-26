@@ -126,7 +126,7 @@ def register():
                 email=request.form['email'],
                 password=request.form['password'],
                 dayavail='None',
-                day_avail_s='None',
+                # day_avail_s='None',
                 starttime='None',
                 endtime='None',
                 hospital='None')
@@ -159,7 +159,7 @@ def register_doctor():
                 email=request.form['email'],
                 password=request.form['password'],
                 dayavail=avails,
-                day_avail_s=day_avail_list,
+                # day_avail_s=day_avail_list,
                 starttime=request.form['timestart'],
                 endtime=request.form['timeend'],
                 hospital=request.form['hospitalname'])
@@ -188,15 +188,28 @@ def logout():
 def finddoctor():
 
     if request.method == 'GET':
+
         doctors = User.query.with_entities(User.id, User.username, User.hospital, User.email,User.dayavail, User.day_avail_s, User.starttime, User.endtime).filter_by(usertype=User.Doctor).all()
         print(doctors)
 
+        doctors = User.query.with_entities(User.id, User.username, User.hospital, User.email,User.dayavail, User.day_avail_s, User.starttime, User.endtime).filter_by(usertype=User.Doctor).all()
+        print(doctors)
+        # for doc in doctors:
+        #     print(doc.day_avail_s)
+        #     print(doc)
+        #     print(doc.id)
+        #     print(doc.username)
+            # if doc.day_avail_s == None:
+            #     print("update")
+            #     id1 = doc.id
+            #     print(id1)
+            #     print(doc)
+            #     User.query.filter_by(id=id1).update(dict(day_avail_s="Weekdays, Sun"))
+            #     db.session.commit()
+
+
         return render_template('finddoctor.html', doctors=doctors)
 
-
-# @app.route("/calendar")
-# def calendar():
-#     return render_template('calendar.html')
 
 
 @app.route("/bookapt/<doctorname>", methods=['GET', 'POST'])
