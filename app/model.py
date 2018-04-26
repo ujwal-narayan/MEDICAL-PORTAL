@@ -70,6 +70,8 @@ class User(db.Model):
             if day_not_avail[i] == 1:
                  avails += str(i)
             i += 1
+        print("get_not_avail_days")
+        print(avails)
         return avails
 
 class Appointments(db.Model):
@@ -88,7 +90,11 @@ class Appointments(db.Model):
 
     def get_slots_avail(starttime, endtime, slotlist, slot_time=15):
         eh = endtime.split(":")
-        ehi = int(eh[0])+12 
+        print(eh[1][-2])
+        if eh[1][-2] == "P":
+            ehi = int(eh[0])+12 
+        else:
+            ehi = int(eh[0])
         etime = str(ehi) + ":" + eh[1][0:-3]
         time = datetime.strptime(starttime[0:-3], '%H:%M')
         end = datetime.strptime(etime, '%H:%M')

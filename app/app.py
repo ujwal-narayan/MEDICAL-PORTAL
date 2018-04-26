@@ -116,7 +116,7 @@ def register():
                 email=request.form['email'],
                 password=request.form['password'],
                 dayavail='None',
-                # day_avail_s='None',
+                day_avail_s='None',
                 starttime='None',
                 endtime='None',
                 hospital='None')
@@ -142,14 +142,14 @@ def register_doctor():
             day_avail_list = request.form.getlist('docavail')
             avails = User.get_not_avail_days(day_avail_list)
             print(avails);
-            # avails = ",".join(day_avail_list)
+            avails1 = ",".join(day_avail_list)
             new_user = User(
                 username=request.form['username'],
                 usertype=User.Doctor,
                 email=request.form['email'],
                 password=request.form['password'],
                 dayavail=avails,
-                # day_avail_s=day_avail_list,
+                day_avail_s=avails1,
                 starttime=request.form['timestart'],
                 endtime=request.form['timeend'],
                 hospital=request.form['hospitalname'])
