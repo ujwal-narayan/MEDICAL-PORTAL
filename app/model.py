@@ -49,6 +49,7 @@ class User(db.Model):
 
     def get_not_avail_days(day_avail_list):
         day_not_avail = [1 for x in range(7)]
+        # print(day_not_avail)
         for day in day_avail_list:
             if day == User.days[0]:
                 i = 1
@@ -65,14 +66,18 @@ class User(db.Model):
                     day_not_avail[i] = 0
                     i +=1
         i =0
-        avails = ""
+        print(day_not_avail)
+        avails = []
         while i<=6:
             if day_not_avail[i] == 1:
-                 avails += str(i)
-            i += 1
-        print("get_not_avail_days")
-        print(avails)
-        return avails
+                 avails.append(str(i))
+            i +=1
+        # print("get_not_avail_days")
+        # print(avails)
+        avails2 = ",".join(avails)
+        # print(avails2)
+
+        return (avails2)
 
 class Appointments(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -89,14 +94,15 @@ class Appointments(db.Model):
         self.doctor_id = doctor_id
 
     def get_slots_avail(starttime, endtime, slotlist, slot_time=15):
-        eh = endtime.split(":")
-        print(eh[1][-2])
-        if eh[1][-2] == "P":
-            ehi = int(eh[0])+12 
-        else:
-            ehi = int(eh[0])
-        etime = str(ehi) + ":" + eh[1][0:-3]
-        time = datetime.strptime(starttime[0:-3], '%H:%M')
+        # eh = endtime.split(":")
+        # print(eh[1][-2])
+        # if eh[1][-2] == "P":
+        #     ehi = int(eh[0])+12 
+        # else:
+        #     ehi = int(eh[0])
+        etime = Appointments.AMPM_to_24(endtime)
+        stime = Appointments.AMPM_to_24(starttime)
+        time = datetime.strptime(stime, '%H:%M')
         end = datetime.strptime(etime, '%H:%M')
         slots = []
         found = 0
@@ -116,12 +122,15 @@ class Appointments(db.Model):
         return slots
 
     def AMPM_to_24(time):
+        eh =  time.split(":")
+        ehi = int(eh[0])
         if time[-2] == "P":
-            eh =  time.split(":")
-            ehi = int(eh[0])+12 
-            return str(ehi) + ":" + eh[1][0:-3]
+            if int(eh[0]) != 12:
+                ehi += 12 
         else:
-            return time[0:-3]
+            if int(eh[0]) == 12:
+                ehi = 0
+        return str(ehi) + ":" + eh[1][0:-3]
 
     def hm_to_mins(t):
         h, m = [int(i) for i in t.split(':')]
@@ -134,7 +143,7 @@ class Appointments(db.Model):
         print(et)
         sm = Appointments.hm_to_mins(st)
         em = Appointments.hm_to_mins(et)
-        return (em-sm)/15
+        return abs((em-sm))/15
         
     def __repr__(self):  return "<Appointments(date ='%s', slot='%s' )>" % (self.date, self.slot)
 

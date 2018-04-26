@@ -183,16 +183,16 @@ def finddoctor():
         print(doctors)
         # for doc in doctors:
         #     print(doc.day_avail_s)
+        #     # print(doc)
+        #     # print(doc.id)
+        #     # print(doc.username)
+        #     days =User.get_not_avail_days(doc.day_avail_s.split(","))
+        #     print("update")
+        #     id1 = doc.id
+        #     print(id1)
         #     print(doc)
-        #     print(doc.id)
-        #     print(doc.username)
-            # if doc.day_avail_s == None:
-            #     print("update")
-            #     id1 = doc.id
-            #     print(id1)
-            #     print(doc)
-            #     User.query.filter_by(id=id1).update(dict(day_avail_s="Weekdays, Sun"))
-            #     db.session.commit()
+        #     User.query.filter_by(id=id1).update(dict(dayavail=days))
+        #     db.session.commit()
 
         return render_template('finddoctor.html', doctors=doctors)
 
@@ -210,7 +210,9 @@ def bookapt(doctorname):
                 # print("docid")
                 # print(docid)
                 # print("dayavail")
-                daylist = doclist[-1].dayavail
+                daylist = doclist[-1].dayavail.split(",")
+                daylist = list(map(int, daylist))
+                print("daylist")
                 print(daylist)
             else:
                 doclist = User.query.with_entities(User.id, User.username, User.dayavail, User.starttime, User.endtime).filter_by(usertype=User.Doctor).all()
@@ -220,7 +222,9 @@ def bookapt(doctorname):
                 # print("docid")
                 # print(docid)
                 # print("dayavail")
-                daylist = doclist[-1].dayavail
+                daylist = doclist[-1].dayavail.split(",")
+                daylist = list(map(int, daylist))
+                print("daylist")
                 print(daylist)
             return render_template('bookapt.html',  docs=doclist,  daylist=daylist)
         else:
@@ -288,7 +292,11 @@ def _get_dates():
         # print(doc)
         dlist = User.query.with_entities(User.id, User.dayavail, User.starttime, User.endtime).filter_by(username=doc).all()
         docid = dlist[-1].id
-        daylist = dlist[-1].dayavail.split()
+        # daylist = dlist[-1].dayavail.split()
+        daylist = dlist[-1].dayavail.split(",")
+        daylist = list(map(int, daylist))
+        print("daylist")
+        print(daylist)
         datelist =  Appointments.query.with_entities(func.count(Appointments.date), Appointments.date).filter_by(doctor_id=docid).all()
         max_slots = Appointments.get_max_slots(dlist[-1].starttime, dlist[-1].endtime)
         print("max_slots")
@@ -297,7 +305,7 @@ def _get_dates():
         final_list = []
         for date1 in datelist:
             print(date1[0])
-            if date1[0] >= 10:
+            if date1[0] >= max_slots:
                 final_list.append(date1.date)
         print(daylist)
         print(final_list)
