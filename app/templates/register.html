@@ -5,12 +5,60 @@
 
 {% else %}
 <br>
-<h2>Register</h2>
+<div class="container">
+    <div class="row">
+    <div class='col-sm-4'>
+         <h2>Register</h2>
+     </div>
+    </div>
+</div>
 <form action="/register/" method="POST">
-  <input type="username" name="username" placeholder="Username">
-  <input type="email" name="email" placeholder="email">
-  <input type="password" name="password" placeholder="Password">
-  <input type="submit" value="Register">
+	<div class="container">
+        <div class="row">
+            <div class='col-sm-4'>
+                <div class="form-group">
+                    <div class='input-group date' id='s4'>
+                        <input type="username" name="username" placeholder="Username" class="form-control"/>
+                    </div>
+                </div>
+            </div>
+          </div>
+    </div>
+
+  <div class="container">
+     <div class="row">
+        <div class='col-sm-4'>
+            <div class="form-group">
+                <div class='input-group date' id='s4'>
+                    <input type="password" name="password" placeholder="Password" class="form-control"/>
+                </div>
+            </div>
+        </div>
+     </div>
+  </div>
+  <div class="container">
+     <div class="row">
+        <div class='col-sm-4'>
+            <div class="form-group">
+                <div class='input-group email' id='s4'>
+                    <input type="email" name="email" placeholder="email" class="form-control"/>
+                </div>
+            </div>
+        </div>
+     </div>
+  </div>
+  
+<div class="container">
+    <div class="row">
+        <div class='col-sm-4'>
+            <div class="form-group">
+                <div class='input-group date' id='s4'>
+                    <input type='submit' class="form-control" name="aptsubmit" value="Register" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 </form>
 {% if error %}
 <p><strong>{{ error }}</strong></p>
