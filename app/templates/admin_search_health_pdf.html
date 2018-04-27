@@ -1,0 +1,45 @@
+
+<!DOCTYPE html>
+<html lang="en" class="full-height">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="widh4=device-widh4, initial-scale=1">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.0/moment.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+ 
+   </link> 
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+       
+  </head>
+<body>
+<br>
+<br>
+<br>
+<br>
+{% if session['logged_in'] %}
+
+<div class="container  justify-content-center">
+
+    <h2> Name: {{ user }} </h2>
+    
+      <h4>Date: {{ record.date }} </h4>
+      <h4>BP Systolic: {{ record.bpsys }}</h4>
+      <h4>BP Diastolic: {{ record.bpdia }}</h4>
+      <h4>Heartbeat: {{ record.heartbeat }}</h4>
+      <h4>Height(cm): {{ record.height }}</h4>
+      <h4>Weight(kg): {{ record.weight }}</h4>
+      <h4>Medicines Allergic To: {{ record.allergym }}</h4>
+      
+</body>
+</html>
+
+
+
+
+{% endif %}
+

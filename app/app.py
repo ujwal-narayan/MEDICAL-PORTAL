@@ -13,6 +13,7 @@ from flask_mail import Mail, Message
 import bcrypt
 import os
 import datetime
+import pdfkit
 
 from app import app, model, db, mail
 from app.model import User, Appointments, BankInfo, Reimbdata, PatintHealthRecord
@@ -507,9 +508,10 @@ def admin_user_search():
         hrecords = []
         for user in users:
             data = user.hrecords.all()
+            # print(data)
             hrecords.append(dict(user=user.username, hrecords=data))
 
-        print(hrecords)
+        # print(hrecords)
         print("end_admin_user_search")
         return render_template('admin_search_health.html', hrecords=hrecords)
 
@@ -553,8 +555,12 @@ def admin_user_health_search_update():
     print(selected_rows)
     for id1 in selected_rows:
         print(id1)
-        records = PatintHealthRecord.query.filter_by(user_id=id1)
-        print(records)
+        users = User.query.filter_by(id=id1).first()
+        record = PatintHealthRecord.query.order_by(PatintHealthRecord.date).filter_by(user_id=id1).first()
+        print(users.username)
+        rendered= render_template('admin_search_health_pdf.html', user=users.username, record=record)
+        file = users.username + "_" + record.date.replace("/","_")+".pdf"
+        pdfkit.from_string(rendered, file)
 
     search_string = session['search_string']
 
@@ -564,6 +570,9 @@ def admin_user_health_search_update():
     for user in users:
         data = user.hrecords.all()
         hrecords.append(dict(user=user.username, hrecords=data))
+
+    rendered = render_template('admin_search_health.html', hrecords=hrecords)
+   
 
     print(hrecords)
     print("end_admin_user_health_search_update")

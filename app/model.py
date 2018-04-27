@@ -213,8 +213,8 @@ class PatintHealthRecord(db.Model):
 
 
 
-    def __init__(self, userid, date, allergym, bpsys, bpdia, heartbeat, height, weight):
-        self.user_id = userid
+    def __init__(self, user_id, date, allergym, bpsys, bpdia, heartbeat, height, weight):
+        self.user_id = user_id
         self.date = date
         self.allergym = allergym
         self.bpsys = bpsys
@@ -224,6 +224,6 @@ class PatintHealthRecord(db.Model):
         self.weight = weight
 
 
-    def __repr__(self):  return "<PatintHealthRecord(userid ='%s', date='%s',,allergym='%s', bpsys='%s', bpdia='%s', heartbeat='%s',)>" % (
+    def __repr__(self):  return "<PatintHealthRecord(user_id ='%s', date='%s',,allergym='%s', bpsys='%s', bpdia='%s', heartbeat='%s',)>" % (
             self.user_id, self.date,  self.allergym, self.bpsys,
             self.bpdia, self.heartbeat)
