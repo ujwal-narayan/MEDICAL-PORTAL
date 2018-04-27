@@ -19,12 +19,17 @@
 <body>
 <br>
 <br>
-<br>
-<br>
 {% if session['logged_in'] %}
 
 <div class="container  justify-content-center">
 
+  
+   <span class="fa fa-user-md text-info" style="font-size:100px;"></span>
+     
+    <table class="table table-striped border-info">
+      <thead>
+    <tr>
+      <th>
     <h2> Name: {{ user }} </h2>
     
       <h4>Date: {{ record.date }} </h4>
@@ -34,6 +39,12 @@
       <h4>Height(cm): {{ record.height }}</h4>
       <h4>Weight(kg): {{ record.weight }}</h4>
       <h4>Medicines Allergic To: {{ record.allergym }}</h4>
+      
+    </tr>
+  </thead>
+   <tbody>
+</tbody>
+      </table>
       
 </body>
 </html>
