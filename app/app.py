@@ -55,6 +55,9 @@ def home():
                 if session['usertype'] == User.Admin:
                     print("Admin")
                     return redirect(url_for('admin_reimb'))
+                if session['usertype'] == User.Patient:
+                    print("Patient")
+                    return redirect(url_for('finddoctor'))
             else:
                 return render_template('index.html')
     return render_template('index.html')

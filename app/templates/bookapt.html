@@ -1,13 +1,23 @@
 {% extends "base.html" %}
 {% block content %}
-   
+
 <form action="/bookapt/doctorname" method="POST">
+ <div class="container  justify-content-center">
+<div class="row ">
+<div class="col-sm-8">
+<div class="card border-info bg-transparent">
+ <div class="card-header text-center">
+    <h5>
+      Book an Appointment
+  </h5>
+ </div>
+<div class="card-body">
     <div class="container">
         <div class="row">
-            <div class='col-sm-4'>
+            <div class='col-sm-8'>
                 <div class="form-group">
                     <div class='input-group' id="iddoctor2">
-                                <select name="aptdoc" class="form-control" id="iddoctor3">
+                                <select name="aptdoc" class="form-control bg-info" id="iddoctor3">
                                 {% for x in docs %}
                                 <option  value="{{ x.username }}" SELECTED>{{ x.username }}</option>
                                 {% endfor %}
@@ -23,10 +33,10 @@
 
     <div class="container">
         <div class="row">
-            <div class='col-sm-4'>
+            <div class='col-sm-8'>
                 <div class="form-group">
                     <div class='input-group date' id='datetimepicker3'>
-                        <input type='text' class="form-control" name="aptdate" type="string" id="iddate"/>
+                        <input type='text' class="form-control bg-info" name="aptdate" type="string" id="iddate"/>
                         <span class="input-group-addon mt-2">
                             <span class="fa fa-calendar"></span>
                         </span>
@@ -58,10 +68,10 @@
     </div>
         <div class="container">
         <div class="row">
-            <div class='col-sm-4'>
+            <div class='col-sm-8'>
                 <div class="form-group">
                     <div class='input-group' id="idslot2">
-                                <select name="aptslot" class="form-control" id="idslot">
+                                <select name="aptslot" class="form-control bg-info" id="idslot">
                                 {% for x in slots %}
                                 <option value="{{ x }}" SELECTED>{{ x }}</option>
                                 {% endfor %}
@@ -77,10 +87,12 @@
 
     <div class="container">
         <div class="row">
-            <div class='col-sm-4'>
+            <div class='col-sm-8'>
                 <div class="form-group">
                     <div class='input-group date' id='s4'>
-                        <input type='submit' class="form-control" name="aptsubmit" />
+                        <input type='submit' class="form-control bg-info" name="aptsubmit" />
+                        <span class="input-group-addon mt-2">
+                                <span class="fa fa-square-o "></span>
                     </div>
                 </div>
             </div>
@@ -178,7 +190,12 @@
        //  });
     });
    
-</script>      
+</script> 
+</div>
+</div>
+</div>
+</div>
+</div>     
 </form>
 
 

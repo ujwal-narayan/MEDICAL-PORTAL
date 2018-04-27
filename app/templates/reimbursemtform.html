@@ -6,33 +6,35 @@
 <div class="container  justify-content-center">
 <div class="row ">
 <div class="col-sm-8">
-<div class="card ">
+<div class="card border-info bg-transparent">
  <div class="card-header text-center">
+  <h5>
   {% if dbinfo %}
     Your reimbursement will be credited to following bank account. 
   {% else %}
     Please provide your bank details 
   {% endif %}
+</h5>
 
 </div>
 
   <div class="card-body">
  
-    <div class="form-group">
+    <div class="form-group ">
            <label for="idbname">Bank Name:</label>
-           <input type='text' class="form-control" name="bname" value="{{ dbinfo.bankname }}"" type="string" id="idbname"/>
+           <input type='text' class="form-control bg-info" name="bname" value="{{ dbinfo.bankname }}"" type="string" id="idbname"/>
      </div>
      <div class="form-group">
            <label for="idbifsc">Bank IFSC:</label>
-           <input type='text' class="form-control" name="bifsc" value="{{ dbinfo.ifsc }}" type="string" id="idbifsc"/>
+           <input type='text' class="form-control bg-info" name="bifsc" value="{{ dbinfo.ifsc }}" type="string" id="idbifsc"/>
     </div>
     <div class="form-group">
            <label for="idbactname">Bank Account Holder Name:</label>
-          <input type='text' class="form-control" name="bactname" value="{{ dbinfo.acctname}}" type="string" id="idbactname"/>
+          <input type='text' class="form-control bg-info" name="bactname" value="{{ dbinfo.acctname}}" type="string" id="idbactname"/>
     </div>
     <div class="form-group">
            <label for="idbactnum">Bank Account Number:</label>
-           <input type='text' class="form-control" name="bactnum" value="{{ dbinfo.acctnum }}" type="string" id="idbactnum"/>
+           <input type='text' class="form-control bg-info" name="bactnum" value="{{ dbinfo.acctnum }}" type="string" id="idbactnum"/>
     
     </div>
   </div>
@@ -43,15 +45,17 @@
 
 <div class="row ">
 <div class="col-sm-8">
-<div class="card">
+<div class="card border-info bg-transparent ">
  <div class="card-header text-center">
+  <h5>
     Please provide your Receipt details
+  </h5>
   </div>
   <div class="card-body">
     <!-- <h5 class="card-title"></h5> -->
       <div class="form-group">
            <label for="idbrno">Bill Receipt/Cash Memo number:</label>
-           <input type='text' class="form-control" name="brno" type="string" id="idbrno"/>
+           <input type='text' class="form-control bg-info" name="brno" type="string" id="idbrno"/>
      </div>
 
   
@@ -59,7 +63,7 @@
          <label for="datetimepicker3">Bill Date:</label>
 
             <div class='input-group date' id='datetimepicker3'>
-                <input type='text' class="form-control" name="brsdate" type="string" id="iddate"/>
+                <input type='text' class="form-control bg-info" name="brsdate" type="string" id="iddate"/>
                 <span class="input-group-addon mt-2">
                     <span class="fa fa-calendar"></span>
                 </span>
@@ -90,7 +94,7 @@
    
     <div class="form-group">
            <label for="idbamt">Amount:<i class="fa fa-inr"></i></label>
-          <input type='number' min ="0" step="0.01" class="form-control" name="bramt" type="string" id="idbamt"  pattern="^\d+(?:\.\d{1,2})?$")/>
+          <input type='number' min ="0" step="0.01" class="form-control bg-info" name="bramt" type="string" id="idbamt"  pattern="^\d+(?:\.\d{1,2})?$")/>
           
     </div>
 
@@ -113,7 +117,7 @@
 <div class="row ">
 <div class="col-sm-8">
   <div class="form-group ">
-          <input type='submit' class="form-control" name="reimbsubmit" value="Submit" />
+          <input type='submit' class="form-control bg-info" name="reimbsubmit" value="Submit" />
   </div>
 </div>
 </div>

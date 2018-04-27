@@ -44,9 +44,13 @@
 	  <ul class="navbar-nav">
       {% if session['usertype'] == 2 %}
        <li class="nav-item">
-        <a class="nav-link" href="{{ url_for('record_patient_vitals') }}">Record Patient Vitals</a>
-         <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <a  {% if request.path=="/record_patient_vitals" %}class="nav-link active"{% else %}class="nav-link"{% endif %}
+            href="{{ url_for('record_patient_vitals') }}">Record Patient Vitals</a>
+        <li class="nav-item dropdown">
+   <a {% if ((session['currentdropdownpage'] == "admin_health") or (session['currentdropdownpage'] == "admin_reimb")) and 
+            (request.path != "/record_patient_vitals") %} class="nav-link dropdown-toggle active"{% else %}class="nav-link dropdown-toggle"{% endif %}
+
+           href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           {% if session['currentdropdownpage'] == 'admin_health' %}
              Health Card
           {% else %}
@@ -60,13 +64,32 @@
       </li>
 
       {% else %}
+      {% if session['usertype'] == 3 %}
+       <li class="nav-item">
+        <a {% if request.path=="/finddoctor" %}class="nav-link active"{% else %}class="nav-link"{% endif %}
+        href="{{ url_for('finddoctor') }}">Find Doctor</a>
+        </li>
+        <li class="nav-item">
+        <a {% if 'bookapt' in request.path %}class="nav-link active"{% else %}class="nav-link"{% endif %}
+        href="{{ url_for('bookapt', doctorname="none") }}">Book Appointment</a>
+        </li>
+        <li class="nav-item">
+        <a {% if request.path=="/reimbursemtform" %}class="nav-link active"{% else %}class="nav-link"{% endif %}
+        href="{{ url_for('reimbursemtform') }}">Apply for Reimbursement</a>
+        </li>
+        <li class="nav-item">
+        <a {% if request.path=="/checkreimbursemntstatus" %}class="nav-link active"{% else %}class="nav-link"{% endif %}
+        href="{{ url_for('checkreimbursemntstatus') }}">Check Reimbursement Status</a>
+        </li>
+
+      {% else %}
       <li class="nav-item">
         <a class="nav-link" href="{{ url_for('home') }}">Home</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="#">About</a>
       </li>
-
+      {% endif %}
       {% endif %}
 	    
 	  </ul>
