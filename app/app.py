@@ -599,7 +599,7 @@ def record_patient_vitals():
         mallergic = request.form['AllergicMed']
         date1 = datetime.datetime.today().strftime("%m/%d/%Y")
         new_patient_hr = PatintHealthRecord(
-                    userid=user.id,
+                    user_id=user.id,
                     date=date1,
                     allergym=mallergic,
                     bpsys=bps,
