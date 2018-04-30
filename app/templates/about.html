@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+.feat{
+  font-size: 1.5em;
+  margin-left: 2em;
+}
+.title{
+  margin-left: 1em;
+}
+.head{
+  margin-left: 1.25em;
+  color:blue;
+}
+.list{
+  margin-left: 1.75em;
+}
+</style>
+<h1 class="title">What is This?</h1>
+<p class="feat">This is a medical portal built by Sravani B and Ujwal , students of IIIT-H , as a part of their ITWS-2 course . </p>
+<h1 class="title">Features</h1>
+<p class="feat"> A variety of features were implented . Some of them are listed below :
+  <ul class = "list">
+    <li>Generate Reports </li>
+    <li>Book Appointments</li>
+    <li>Find Doctors</li>
+    <li>Payment and ReImbursement</li>
+    <li>Patient Search</li>
+  </ul>
+  <h4 class="head">Generate Reports</h4>
+  <p class="feat" >Each patient can have their health record updated on a visit  and said record can be downloaded in a pdf format. </p>
+  <h4 class="head">Book Appointment </h4>
+  <p class="feat" >Each patient can book an appointment for a given date and time with a given doctor. An email will also be snet confirming the booking . Each Doctor view the appointments he has and when and with who </p>
+  <h4 class="head">Find Doctor</h4>
+  <p class="feat" >Patients can search through a list of doctors and see which ones suit them the most </p>
+  <h4 class="head">Payment and Reimbursement </h4>
+  <p class="feat" >Patient can pay their and also apply for reimbursements . The admin can approve or reject these requests. </p>
+  <h4 class="head">Patient Search</h4>
+  <p class="feat" >The admin can search through the list of patients and see their history </p>
+
+
+{% endblock %}
