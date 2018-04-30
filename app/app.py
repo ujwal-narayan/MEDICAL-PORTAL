@@ -7,6 +7,7 @@ from flask_migrate import Migrate
 from flask import jsonify
 from werkzeug import secure_filename
 from flask_mail import Mail, Message
+from threading import Thread
 
 
 
@@ -17,6 +18,29 @@ import pdfkit
 
 from app import app, model, db, mail
 from app.model import User, Appointments, BankInfo, Reimbdata, PatintHealthRecord
+
+def send_async_email(app, msg):
+    with app.app_context():
+        mail.send(msg)
+
+
+def send_email(subject, sender, recipients, text_body, html_body):
+    msg = Message(subject, sender=sender, recipients=recipients)
+    msg.body = text_body
+    msg.html = html_body
+    Thread(target=send_async_email, args=(app, msg)).start()
+
+def send_password_reset_email(user):
+    token = user.get_reset_password_token()
+    send_email(' Reset Your Password',
+               sender=app.config['MAIL_USERNAME'][0],
+               recipients=[user.email],
+               text_body=render_template('reset_password.txt',
+                                         user=user, token=token),
+               html_body=render_template('reset_password_e.html',
+                                         user=user, token=token))
+
+
 
 
 @app.route('/', methods=['GET'])
@@ -176,6 +200,45 @@ def logout():
     session.pop('usertype', 0)
     session.pop('userid', 0)
     return redirect(url_for('home'))
+
+
+@app.route("/reset",methods=['GET', 'POST'])
+def reset():
+    if request.method == 'POST':
+        if  session.get('logged_in') is True :
+            return redirect(url_for('home'))
+        else:
+            email=request.form['email']
+            user = User.query.filter_by(email=email).first()
+            if user:
+                send_password_reset_email(user)
+                flash("Reset email has been sent. Please check your email for further instructions")
+            else:
+                flash("User email not found . Try Again")
+                return redirect(url_for('reset'))
+            return redirect(url_for('login'))
+
+    return render_template('reset_password_req.html',title="Password Reset")
+    
+
+
+@app.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    if session.get('logged_in'):
+        return redirect(url_for('home'))
+    user = User.verify_reset_password_token(token)
+    if not user:
+        return redirect(url_for('home'))
+    if user : 
+        if request.method == 'POST':
+            password=request.form['password']
+            user.password=bcrypt.hashpw(
+                password.encode('utf8'), bcrypt.gensalt())
+            db.session.commit()
+            flash('Your password has been reset.')
+            return redirect(url_for('login'))
+    return render_template('reset_password.html',token=token)
+
 
 
 @app.route("/finddoctor", methods=['GET', 'POST'])
